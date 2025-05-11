@@ -1,7 +1,13 @@
 
-# Run kernel
+# Run vm
 ```
 nix run github:patryk4815/kernel#vm-aarch64-linux
+```
+
+# Build kernel/initrd
+```
+nix build github:patryk4815/kernel#kernel-aarch64-linux
+nix build github:patryk4815/kernel#initrd-aarch64-linux
 ```
 
 # Matrix
