@@ -14,6 +14,7 @@
   elfutils,
   zstd,
   hexdump,
+  ubootTools,
 }:
 stdenv.mkDerivation (finalAttrs: {
   name = "linux";
@@ -24,23 +25,26 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-IYF/GZjiIw+B9+T2Bfpv3LBA4U+ifZnCfdsWznSXl6k=";
   };
 
-  buildInputs = [
-    openssl
-  ];
+  buildInputs = [ ];
 
-  nativeBuildInputs = [
-    flex
-    bison
-    bc
-    perl
-    pkg-config
-    python3Minimal
-    elfutils
-    openssl
-
-    hexdump
-    zstd
-  ];
+  nativeBuildInputs =
+    [
+      flex
+      bison
+      bc
+      perl
+      pkg-config
+      python3Minimal
+      elfutils
+      openssl
+    ]
+    ++ lib.optionals stdenv.targetPlatform.isAarch32 [
+      hexdump
+      zstd
+    ]
+    ++ lib.optionals stdenv.targetPlatform.isMips32 [
+      ubootTools
+    ];
   strictDeps = true;
   dontStrip = true;
 

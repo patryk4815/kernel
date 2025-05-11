@@ -17,12 +17,13 @@
       vms = {
         "i686-linux" = {
           nixCross = "gnu32";
-          qemuArch = "x86";
+          qemuArch = "i386";
           qemuArgs = [
             "-machine pc"
             "-kernel $KERNEL_DIR/bzImage"
             "-append \"console=ttyS0 $KERNEL_CMDLINE\""
           ];
+          network = true;
         };
         "x86_64-linux" = {
           nixCross = "gnu64";
@@ -32,6 +33,7 @@
             "-kernel $KERNEL_DIR/bzImage"
             "-append \"console=ttyS0 $KERNEL_CMDLINE\""
           ];
+          network = true;
         };
         "armv7l-linux" = {
           nixCross = "armv7l-hf-multiplatform";
@@ -47,6 +49,7 @@
             "-cpu cortex-a7"
             "-kernel $KERNEL_DIR/zImage"
           ];
+          network = false;
         };
         "aarch64-linux" = {
           nixCross = "aarch64-multiplatform";
@@ -56,6 +59,7 @@
             "-cpu cortex-a57"
             "-kernel $KERNEL_DIR/Image"
           ];
+          network = true;
         };
         "riscv64-linux" = {
           nixCross = "riscv64";
@@ -64,6 +68,7 @@
             "-machine virt"
             "-kernel $KERNEL_DIR/Image"
           ];
+          network = false;
         };
         "s390x-linux" = {
           nixCross = "s390x";
@@ -72,6 +77,7 @@
             "-machine s390-ccw-virtio"
             "-kernel $KERNEL_DIR/bzImage"
           ];
+          network = false;
         };
         "ppc64-linux" = {
           nixCross = "ppc64";
@@ -80,6 +86,7 @@
             "-machine powernv"
             "-kernel $KERNEL_DIR/vmlinux"
           ];
+          network = false;
         };
         "ppc64le-linux" = {
           nixCross = "powernv";
@@ -88,6 +95,7 @@
             "-machine powernv"
             "-kernel $KERNEL_DIR/vmlinux"
           ];
+          network = false;
         };
         "loongarch64-linux" = {
           nixCross = "loongarch64-linux";
@@ -97,38 +105,47 @@
             "-cpu la464"
             "-kernel $KERNEL_DIR/vmlinux"
           ];
+          network = false;
         };
         "mips-linux" = {
           nixCross = "mips-linux-gnu";
           qemuArch = "mips";
           qemuArgs = [
-            "-machine virt"
+            "-machine malta"
+            "-cpu mips32r6-generic"
             "-kernel $KERNEL_DIR/vmlinux"
           ];
+          network = false;
         };
         "mipsel-linux" = {
           nixCross = "mipsel-linux-gnu";
           qemuArch = "mipsel";
           qemuArgs = [
-            "-machine virt"
+            "-machine malta"
+            "-cpu mips32r6-generic"
             "-kernel $KERNEL_DIR/vmlinux"
           ];
+          network = false;
         };
         "mips64-linux" = {
           nixCross = "mips64-linux-gnuabi64";
           qemuArch = "mips64";
           qemuArgs = [
-            "-machine virt"
+            "-machine loongson3-virt"
+            "-cpu Loongson-3A4000"
             "-kernel $KERNEL_DIR/vmlinux"
           ];
+          network = false;
         };
         "mips64el-linux" = {
           nixCross = "mips64el-linux-gnuabi64";
           qemuArch = "mips64el";
           qemuArgs = [
-            "-machine virt"
+            "-machine loongson3-virt"
+            "-cpu Loongson-3A4000"
             "-kernel $KERNEL_DIR/vmlinux"
           ];
+          network = false;
         };
       };
 
