@@ -110,22 +110,22 @@
         "mips-linux" = {
           nixCross = "mips-linux-gnu";
           qemuArch = "mips";
+          # TOOD: kernel malta_defconfig
           qemuArgs = [
             "-machine malta"
-            "-cpu mips32r6-generic"
             "-kernel $KERNEL_DIR/vmlinux"
           ];
-          network = false;
+          network = true;
         };
         "mipsel-linux" = {
           nixCross = "mipsel-linux-gnu";
           qemuArch = "mipsel";
+          # TOOD: kernel malta_defconfig
           qemuArgs = [
             "-machine malta"
-            "-cpu mips32r6-generic"
             "-kernel $KERNEL_DIR/vmlinux"
           ];
-          network = false;
+          network = true;
         };
         "mips64-linux" = {
           nixCross = "mips64-linux-gnuabi64";

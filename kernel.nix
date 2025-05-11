@@ -55,9 +55,11 @@ stdenv.mkDerivation (finalAttrs: {
     CROSS_COMPILE = "${stdenv.cc.targetPrefix}";
   };
 
-  preBuild = ''
+  preBuild = let
+    defconfig = if stdenv.hostPlatform.isMips32 then "malta_defconfig" else "defconfig";
+  in ''
     buildFlagsArray+=("-j$NIX_BUILD_CORES")
-    make defconfig
+    make ${defconfig}
     patchShebangs scripts/config
     scripts/config --enable CONFIG_FS_POSIX_ACL
     scripts/config --enable CONFIG_FUSE_FS
@@ -76,6 +78,12 @@ stdenv.mkDerivation (finalAttrs: {
     scripts/config --enable CONFIG_9P_FS
     scripts/config --enable CONFIG_9P_FS_POSIX_ACL
     sed -i 's/=m$/=n/' .config
+  '' + lib.optionalString stdenv.hostPlatform.isMips32 ''
+    scripts/config --enable CONFIG_USER_NS
+    scripts/config --enable CONFIG_CGROUPS
+  '' + lib.optionalString stdenv.hostPlatform.isBigEndian ''
+    scripts/config --enable CONFIG_CPU_BIG_ENDIAN
+    scripts/config --disable CONFIG_CPU_LITTLE_ENDIAN
   '';
 
   installFlags = [
