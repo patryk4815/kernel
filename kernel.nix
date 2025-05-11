@@ -38,7 +38,7 @@ stdenv.mkDerivation (finalAttrs: {
       elfutils
       openssl
     ]
-    ++ lib.optionals stdenv.targetPlatform.isAarch32 [
+    ++ lib.optionals stdenv.targetPlatform.isLoongArch64 [
       hexdump
       zstd
     ]
