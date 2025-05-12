@@ -1,6 +1,15 @@
 {
   description = "kernel";
 
+  nixConfig = {
+    extra-substituters = [
+      "https://patryk4815.cachix.org"
+    ];
+    extra-trusted-public-keys = [
+      "patryk4815.cachix.org-1:NVPj2ZnbKi30JPrj2Vdd3VVNXrv6u/4Mt7yAD4/uqkY="
+    ];
+  };
+
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
   };

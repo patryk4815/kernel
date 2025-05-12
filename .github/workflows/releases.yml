@@ -1,0 +1,50 @@
+name: Releases manual
+
+on: workflow_dispatch
+
+jobs:
+  releases-linux:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [
+          ubuntu-latest,  # x86_64-linux
+          ubuntu-24.04-arm,  # aarch64-linux
+        ]
+        attribute: [
+          i686-linux,
+          x86_64-linux,
+          armv7l-linux,
+          aarch64-linux,
+          riscv64-linux,
+          s390x-linux,
+          ppc64-linux,
+          ppc64le-linux,
+          loongarch64-linux,
+          mips-linux,
+          mipsel-linux,
+          mips64el-linux,
+        ]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    steps:
+    - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9  # @v3
+    - uses: cachix/install-nix-action@08dcb3a5e62fa31e2da3d490afc4176ef55ecd72  # @v30
+      with:
+        nix_path: nixpkgs=channel:nixos-unstable
+    - name: configure cache
+      if: github.ref == 'refs/heads/main'
+      uses: cachix/cachix-action@ad2ddac53f961de1989924296a1f236fcfbaa4fc  # v15
+      with:
+        name: pwndbg
+        authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+        signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
+
+    - name: build ${{ matrix.attribute }} initrd
+      run: nix build '.#initrd-${{ matrix.attribute }}' --accept-flake-config
+
+    - name: build ${{ matrix.attribute }} kernel
+      run: nix build '.#kernel-${{ matrix.attribute }}' --accept-flake-config
+
+    - name: test ${{ matrix.attribute }} vm
+      run: ./tests/simple.py vm-${{ matrix.attribute }}
