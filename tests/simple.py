@@ -13,18 +13,22 @@ if len(sys.argv) != 2:
 attribute = sys.argv[1]
 
 p = process(["nix", "run", f".#{attribute}", "--accept-flake-config"])
-p.recvuntil(b'~ #', timeout=120)
-p.sendline(b'id; exit')
+try:
+    p.recvuntil(b'~ #', timeout=120)
+    p.sendline(b'id; exit')
 
-output = p.recvall(timeout=10)
+    output = p.recvall(timeout=10)
 
-# Sprawdź wynik
-if b"uid=0(root) gid=0" in output:
-    print("SUCCESS: Found expected output.")
-    print("Received:")
-    print(output[:30])
-else:
-    print("FAILURE: Expected output not found.")
-    print("Received:")
-    print(output)
-    sys.exit(1)
+    # Sprawdź wynik
+    if b"uid=0(root) gid=0" in output:
+        print("SUCCESS: Found expected output.")
+        print("Received:")
+        print(output[:30])
+        sys.exit(0)
+    else:
+        print("FAILURE: Expected output not found.")
+        print("Received:")
+        print(output)
+        sys.exit(1)
+finally:
+    p.kill()

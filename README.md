@@ -11,18 +11,18 @@ nix build github:patryk4815/kernel#initrd-aarch64-linux
 ```
 
 # Matrix
-| Attr/Architecture    | Network/NAT | SharedDir |
-|----------------------|-------------|------------|
-| vm-i686-linux        | ❌          | ❌         |
-| vm-x86_64-linux      | ❌          | ❌         |
-| vm-armv7l-linux      | ❌          | ❌         |
-| vm-aarch64-linux     | ❌          | ❌         |
-| vm-riscv64-linux     | ❌          | ❌         |
-| vm-s390x-linux       | ❌          | ❌         |
-| vm-ppc64-linux       | ❌          | ❌         |
-| vm-ppc64le-linux     | ❌          | ❌         |
-| vm-loongarch64-linux | ❌          | ❌         |
-| vm-mips-linux        | ❌          | ❌         |
-| vm-mipsel-linux      | ❌          | ❌         |
-| ~~vm-mips64-linux~~  | ❌          | ❌         |
-| vm-mips64el-linux    | ❌          | ❌         |
+| Attr/Architecture    | Endianess | Network/NAT | SharedDir |
+|----------------------|-----------|-------------|------------|
+| vm-i686-linux        | Little    | ❌          | ❌         |
+| vm-x86_64-linux      | Little    | ❌          | ❌         |
+| vm-armv7l-linux      | Little    | ❌          | ❌         |
+| vm-aarch64-linux     | Little    | ❌          | ❌         |
+| vm-riscv64-linux     | Little    | ❌          | ❌         |
+| vm-s390x-linux       | Big       | ❌          | ❌         |
+| vm-ppc64-linux       | Big       | ❌          | ❌         |
+| vm-ppc64le-linux     | Little    | ❌          | ❌         |
+| vm-loongarch64-linux | Little    | ❌          | ❌         |
+| vm-mips-linux        | Big       | ❌          | ❌         |
+| vm-mipsel-linux      | Little    | ❌          | ❌         |
+| ~~vm-mips64-linux~~  | Big       | ❌          | ❌         |
+| vm-mips64el-linux    | Little    | ❌          | ❌         |
