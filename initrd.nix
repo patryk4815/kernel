@@ -14,8 +14,8 @@ let
     name = "rootfs-env";
     paths = map lib.getBin [
       busybox
-#      socat
-#      dhcpcd
+      #      socat
+      #      dhcpcd
     ];
     pathsToLink = [
       "/bin"

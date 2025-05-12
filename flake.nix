@@ -127,16 +127,17 @@
           ];
           network = true;
         };
-        "mips64-linux" = {
-          nixCross = "mips64-linux-gnuabi64";
-          qemuArch = "mips64";
-          qemuArgs = [
-            "-machine loongson3-virt"
-            "-cpu Loongson-3A4000"
-            "-kernel $KERNEL_DIR/vmlinux"
-          ];
-          network = false;
-        };
+        #        "mips64-linux" = {
+        #          nixCross = "mips64-linux-gnuabi64";
+        #          qemuArch = "mips64";
+        #          qemuArgs = [
+        #            "-machine ??"
+        #            "-cpu ??"
+        #            "-kernel $KERNEL_DIR/vmlinux"
+        #            "-append \"console=ttyS0 $KERNEL_CMDLINE\""
+        #          ];
+        #          network = false;
+        #        };
         "mips64el-linux" = {
           nixCross = "mips64el-linux-gnuabi64";
           qemuArch = "mips64el";
@@ -144,8 +145,9 @@
             "-machine loongson3-virt"
             "-cpu Loongson-3A4000"
             "-kernel $KERNEL_DIR/vmlinux"
+            "-append \"console=ttyS0 $KERNEL_CMDLINE\""
           ];
-          network = false;
+          network = true;
         };
       };
 

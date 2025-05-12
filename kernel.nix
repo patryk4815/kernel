@@ -42,7 +42,7 @@ stdenv.mkDerivation (finalAttrs: {
       hexdump
       zstd
     ]
-    ++ lib.optionals stdenv.targetPlatform.isMips32 [
+    ++ lib.optionals stdenv.targetPlatform.isMips [
       ubootTools
     ];
   strictDeps = true;
@@ -55,36 +55,50 @@ stdenv.mkDerivation (finalAttrs: {
     CROSS_COMPILE = "${stdenv.cc.targetPrefix}";
   };
 
-  preBuild = let
-    defconfig = if stdenv.hostPlatform.isMips32 then "malta_defconfig" else "defconfig";
-  in ''
-    buildFlagsArray+=("-j$NIX_BUILD_CORES")
-    make ${defconfig}
-    patchShebangs scripts/config
-    scripts/config --enable CONFIG_FS_POSIX_ACL
-    scripts/config --enable CONFIG_FUSE_FS
-    scripts/config --enable CONFIG_VIRTIO_FS
-    scripts/config --enable CONFIG_VIRTIO_VSOCKETS
-    scripts/config --enable CONFIG_VIRTIO_BLK
-    scripts/config --enable CONFIG_VIRTIO_NET
-    scripts/config --enable CONFIG_VIRTIO_PCI
-    scripts/config --enable CONFIG_VIRTIO_MEM
-    scripts/config --enable CONFIG_VIRTIO_MMIO
-    scripts/config --enable CONFIG_VIRTIO_IOMMU
-    scripts/config --enable CONFIG_VSOCKETS
-    scripts/config --enable CONFIG_VHOST_NET
-    scripts/config --enable CONFIG_NET_9P
-    scripts/config --enable CONFIG_NET_9P_VIRTIO
-    scripts/config --enable CONFIG_9P_FS
-    scripts/config --enable CONFIG_9P_FS_POSIX_ACL
-    sed -i 's/=m$/=n/' .config
-  '' + lib.optionalString stdenv.hostPlatform.isMips32 ''
-    scripts/config --enable CONFIG_USER_NS
-    scripts/config --enable CONFIG_CGROUPS
-  '' + lib.optionalString stdenv.hostPlatform.isBigEndian ''
-    scripts/config --enable CONFIG_CPU_BIG_ENDIAN
-    scripts/config --disable CONFIG_CPU_LITTLE_ENDIAN
-  '';
+  preBuild =
+    let
+      defconfig =
+        if stdenv.hostPlatform.isMips32 then
+          "malta_defconfig"
+        else if stdenv.hostPlatform.isMips64 then
+          "loongson3_defconfig"
+        else
+          "defconfig";
+    in
+    ''
+      buildFlagsArray+=("-j$NIX_BUILD_CORES")
+      make ${defconfig}
+      patchShebangs scripts/config
+      scripts/config --enable CONFIG_FS_POSIX_ACL
+      scripts/config --enable CONFIG_FUSE_FS
+      scripts/config --enable CONFIG_VIRTIO_FS
+      scripts/config --enable CONFIG_VIRTIO_VSOCKETS
+      scripts/config --enable CONFIG_VIRTIO_BLK
+      scripts/config --enable CONFIG_VIRTIO_NET
+      scripts/config --enable CONFIG_VIRTIO_PCI
+      scripts/config --enable CONFIG_VIRTIO_MEM
+      scripts/config --enable CONFIG_VIRTIO_MMIO
+      scripts/config --enable CONFIG_VIRTIO_IOMMU
+      scripts/config --enable CONFIG_VSOCKETS
+      scripts/config --enable CONFIG_VHOST_NET
+      scripts/config --enable CONFIG_NET_9P
+      scripts/config --enable CONFIG_NET_9P_VIRTIO
+      scripts/config --enable CONFIG_9P_FS
+      scripts/config --enable CONFIG_9P_FS_POSIX_ACL
+      sed -i 's/=m$/=n/' .config
+    ''
+    + lib.optionalString stdenv.hostPlatform.isMips ''
+      scripts/config --enable CONFIG_USER_NS
+      scripts/config --enable CONFIG_CGROUPS
+    ''
+    + lib.optionalString stdenv.hostPlatform.isBigEndian ''
+      scripts/config --enable CONFIG_CPU_BIG_ENDIAN
+      scripts/config --disable CONFIG_CPU_LITTLE_ENDIAN
+    ''
+    + lib.optionalString stdenv.hostPlatform.isLittleEndian ''
+      scripts/config --disable CONFIG_CPU_BIG_ENDIAN
+      scripts/config --enable CONFIG_CPU_LITTLE_ENDIAN
+    '';
 
   installFlags = [
     "INSTALL_PATH=$(out)"
