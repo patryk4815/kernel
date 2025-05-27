@@ -47,4 +47,6 @@ jobs:
       run: nix build '.#kernel-${{ matrix.attribute }}' --accept-flake-config
 
     - name: test ${{ matrix.attribute }} vm
-      run: ./tests/simple.py vm-${{ matrix.attribute }}
+      run: |
+        mkdir /tmp/shared
+        ./tests/simple.py vm-${{ matrix.attribute }}

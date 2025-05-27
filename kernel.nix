@@ -111,9 +111,11 @@ stdenv.mkDerivation (finalAttrs: {
     '';
 
   installPhase = ''
-    cp ./vmlinux-gdb.py $out/ || true
+    make scripts_gdb
+
     mkdir -p $out/scripts/
-    cp -rf ./scripts/gdb/ $out/scripts/ || true
+    cp ./vmlinux-gdb.py $out/
+    cp -rf ./scripts/gdb/ $out/scripts/
 
     cp vmlinux $out/vmlinux
     cp vmlinux $out/vmlinux.debug
