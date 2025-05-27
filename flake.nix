@@ -48,17 +48,17 @@
           nixCross = "armv7l-hf-multiplatform";
           qemuArch = "arm";
           qemuArgs = [
-            # "-machine versatilepb"
-            # "-m 256M"
-            # "-dtb $KERNEL_DIR/dts/arm/versatile-pb.dtb"
-            # "-machine orangepi-pc"
-            # "-smp 4"
-            # "-dtb $KERNEL_DIR/dts/allwinner/sun8i-h3-orangepi-pc.dtb"
             "-machine virt"
             "-cpu cortex-a7"
             "-kernel $KERNEL_DIR/zImage"
+
+            "-netdev user,id=eth0"
+            "-device virtio-net-device,netdev=eth0"
+
+            "-fsdev local,id=test_dev,path=/tmp/shared,security_model=mapped,multidevs=remap"
+            "-device virtio-9p-device,fsdev=test_dev,mount_tag=shared"
           ];
-          network = false;
+          network = true;
         };
         "aarch64-linux" = {
           nixCross = "aarch64-multiplatform";
@@ -76,8 +76,11 @@
           qemuArgs = [
             "-machine virt"
             "-kernel $KERNEL_DIR/Image"
+
+            "-netdev user,id=eth0"
+            "-device virtio-net-device,netdev=eth0"
           ];
-          network = false;
+          network = true;
         };
         "s390x-linux" = {
           nixCross = "s390x";
@@ -86,7 +89,7 @@
             "-machine s390-ccw-virtio"
             "-kernel $KERNEL_DIR/bzImage"
           ];
-          network = false;
+          network = true;
         };
         "ppc64-linux" = {
           nixCross = "ppc64";
@@ -94,17 +97,23 @@
           qemuArgs = [
             "-machine powernv"
             "-kernel $KERNEL_DIR/vmlinux"
+
+            "-netdev user,id=eth0"
+            "-device virtio-net-pci,netdev=eth0"
           ];
-          network = false;
+          network = true;
         };
         "ppc64le-linux" = {
           nixCross = "powernv";
           qemuArch = "ppc64";
           qemuArgs = [
             "-machine powernv"
-            "-kernel $KERNEL_DIR/vmlinux"
+            "-kernel $KERNEL_DIR/zImage"
+
+            "-netdev user,id=eth0"
+            "-device virtio-net-pci,netdev=eth0"
           ];
-          network = false;
+          network = true;
         };
         "loongarch64-linux" = {
           nixCross = "loongarch64-linux";
@@ -114,12 +123,11 @@
             "-cpu la464"
             "-kernel $KERNEL_DIR/vmlinux"
           ];
-          network = false;
+          network = true;
         };
         "mips-linux" = {
           nixCross = "mips-linux-gnu";
           qemuArch = "mips";
-          # TOOD: kernel malta_defconfig
           qemuArgs = [
             "-machine malta"
             "-kernel $KERNEL_DIR/vmlinux"
@@ -129,24 +137,12 @@
         "mipsel-linux" = {
           nixCross = "mipsel-linux-gnu";
           qemuArch = "mipsel";
-          # TOOD: kernel malta_defconfig
           qemuArgs = [
             "-machine malta"
             "-kernel $KERNEL_DIR/vmlinux"
           ];
           network = true;
         };
-        #        "mips64-linux" = {
-        #          nixCross = "mips64-linux-gnuabi64";
-        #          qemuArch = "mips64";
-        #          qemuArgs = [
-        #            "-machine ??"
-        #            "-cpu ??"
-        #            "-kernel $KERNEL_DIR/vmlinux"
-        #            "-append \"console=ttyS0 $KERNEL_CMDLINE\""
-        #          ];
-        #          network = false;
-        #        };
         "mips64el-linux" = {
           nixCross = "mips64el-linux-gnuabi64";
           qemuArch = "mips64el";
@@ -171,7 +167,7 @@
         pkgs.writeShellScriptBin "run" ''
           KERNEL_DIR=${kernel}
           INITRD_DIR=${initrd}
-          KERNEL_CMDLINE="panic=1 oops=panic"
+          KERNEL_CMDLINE="panic=-1 oops=panic"
           SHARED_DIR=''${SHARED_DIR:-/tmp/shared}
 
           #  -virtfs local,path=$SHARED_DIR,security_model=none,mount_tag=shared \
@@ -182,15 +178,19 @@
           #            -numa node,memdev=mem0 \
           # TODO: armv7l nie wspiera 9p /
           # TODO: VSOCK: -device vhost-vsock-pci,guest-cid=3 \
+          #
+          # Port forward:
+          # -device virtio-net-device,netdev=net \
+          #-netdev user,id=net,hostfwd=tcp::2222-:22
 
           ${pkgs.qemu}/bin/qemu-system-${args.qemuArch} \
-            -m 1G \
+            -m 2G \
             -smp 1 \
             -nographic \
             -no-reboot \
             -append "$KERNEL_CMDLINE" \
             -initrd $INITRD_DIR/initrd \
-            -nic user,model=virtio-net-pci \
+            -virtfs local,path=$SHARED_DIR,security_model=none,mount_tag=shared \
             ${toString args.qemuArgs}
         '';
 

@@ -15,7 +15,6 @@ let
     paths = map lib.getBin [
       busybox
       #      socat
-      #      dhcpcd
     ];
     pathsToLink = [
       "/bin"
@@ -61,12 +60,12 @@ let
 
     # shared dir
     mkdir /mnt
-    # mount -t 9p -o trans=virtio shared /mnt
+    mount -t 9p -o trans=virtio shared /mnt
     # mount -t virtiofs shared /mnt
 
     ifconfig lo up
     # ifconfig eth0 up
-    # dhcpcd eth0
+    udhcpc
 
     setsid cttyhack /bin/sh
   '';

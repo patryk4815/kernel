@@ -69,6 +69,16 @@ stdenv.mkDerivation (finalAttrs: {
       buildFlagsArray+=("-j$NIX_BUILD_CORES")
       make ${defconfig}
       patchShebangs scripts/config
+
+      # Enable debug symbols
+      scripts/config --disable CONFIG_DEBUG_INFO_REDUCED
+      scripts/config --enable CONFIG_FRAME_POINTER
+      scripts/config --enable CONFIG_DEBUG_KERNEL
+      scripts/config --enable CONFIG_DEBUG_INFO
+      scripts/config --enable CONFIG_DEBUG_INFO_DWARF5
+      scripts/config --enable CONFIG_GDB_SCRIPTS
+
+      # Virtio
       scripts/config --enable CONFIG_FS_POSIX_ACL
       scripts/config --enable CONFIG_FUSE_FS
       scripts/config --enable CONFIG_VIRTIO_FS
@@ -100,21 +110,21 @@ stdenv.mkDerivation (finalAttrs: {
       scripts/config --enable CONFIG_CPU_LITTLE_ENDIAN
     '';
 
-  installFlags = [
-    "INSTALL_PATH=$(out)"
-    "INSTALL_MOD_PATH=$(out)"
-  ];
+  installPhase = ''
+    cp ./vmlinux-gdb.py $out/ || true
+    mkdir -p $out/scripts/
+    cp -rf ./scripts/gdb/ $out/scripts/ || true
 
-  preInstall = ''
-    installFlagsArray+=("-j$NIX_BUILD_CORES")
-  '';
-
-  postInstall = ''
-    cp vmlinux $out/
+    cp vmlinux $out/vmlinux
+    cp vmlinux $out/vmlinux.debug
     cp .config $out/
+    cp System.map $out/
+
     cp arch/*/boot/Image $out/ || true
     cp arch/*/boot/bzImage $out/ || true
     cp arch/*/boot/zImage $out/ || true
     cp -rf arch/*/boot/dts/ $out/ || true
+
+    ${stdenv.cc.targetPrefix}strip --strip-debug $out/vmlinux
   '';
 })
