@@ -23,6 +23,16 @@
     let
       forAllSystems = nixpkgs.lib.genAttrs nixpkgs.lib.systems.flakeExposed;
 
+      forceSystemLinux = (
+        system':
+        let
+          pkgs = nixpkgs.legacyPackages.${system'};
+          fix = builtins.replaceStrings [ "-darwin" ] [ "-linux" ] system';
+          system = if pkgs.stdenv.isLinux then system' else fix;
+        in
+        system
+      );
+
       vms = {
         "i686-linux" = {
           nixCross = "gnu32";
@@ -170,13 +180,6 @@
           KERNEL_CMDLINE="panic=-1 oops=panic"
           SHARED_DIR=''${SHARED_DIR:-/tmp/shared}
 
-          #  -virtfs local,path=$SHARED_DIR,security_model=none,mount_tag=shared \
-          # ${pkgs.virtiofsd}/bin/virtiofsd --socket-path /tmp/vhostqemu --shared-dir /tmp/shared &
-          #             -chardev socket,id=virtfs0,path=/tmp/vhostqemu \
-          #            -device vhost-user-fs-pci,queue-size=1024,chardev=virtfs0,tag=shared \
-          #            -object memory-backend-file,id=mem0,size=1G,mem-path=/dev/shm,share=on \
-          #            -numa node,memdev=mem0 \
-          # TODO: armv7l nie wspiera 9p /
           # TODO: VSOCK: -device vhost-vsock-pci,guest-cid=3 \
           #
           # Port forward:
@@ -195,7 +198,10 @@
         '';
 
       kernelDrvs =
-        system:
+        system':
+        let
+          system = forceSystemLinux system';
+        in
         (nixpkgs.lib.attrsets.mapAttrs' (cross: value: {
           name = "kernel-${cross}";
           value =
@@ -204,7 +210,10 @@
         }) vms);
 
       initrdDrvs =
-        system:
+        system':
+        let
+          system = forceSystemLinux system';
+        in
         (nixpkgs.lib.attrsets.mapAttrs' (cross: value: {
           name = "initrd-${cross}";
           value =
