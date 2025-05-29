@@ -42,7 +42,13 @@
             "-kernel $KERNEL_DIR/bzImage"
             "-append \"console=ttyS0 $KERNEL_CMDLINE\""
           ];
-          network = true;
+          sharedDir = [
+            "-virtfs local,path=$SHARED_DIR,security_model=none,mount_tag=shared"
+          ];
+          network = [
+            "-netdev user,id=eth0"
+            "-device virtio-net-pci,netdev=eth0"
+          ];
         };
         "x86_64-linux" = {
           nixCross = "gnu64";
@@ -52,7 +58,13 @@
             "-kernel $KERNEL_DIR/bzImage"
             "-append \"console=ttyS0 $KERNEL_CMDLINE\""
           ];
-          network = true;
+          sharedDir = [
+            "-virtfs local,path=$SHARED_DIR,security_model=none,mount_tag=shared"
+          ];
+          network = [
+            "-netdev user,id=eth0"
+            "-device virtio-net-pci,netdev=eth0"
+          ];
         };
         "armv7l-linux" = {
           nixCross = "armv7l-hf-multiplatform";
@@ -61,14 +73,15 @@
             "-machine virt"
             "-cpu cortex-a7"
             "-kernel $KERNEL_DIR/zImage"
-
-            "-netdev user,id=eth0"
-            "-device virtio-net-device,netdev=eth0"
-
+          ];
+          sharedDir = [
             "-fsdev local,id=test_dev,path=/tmp/shared,security_model=mapped,multidevs=remap"
             "-device virtio-9p-device,fsdev=test_dev,mount_tag=shared"
           ];
-          network = true;
+          network = [
+            "-netdev user,id=eth0"
+            "-device virtio-net-device,netdev=eth0"
+          ];
         };
         "aarch64-linux" = {
           nixCross = "aarch64-multiplatform";
@@ -78,7 +91,13 @@
             "-cpu cortex-a57"
             "-kernel $KERNEL_DIR/Image"
           ];
-          network = true;
+          sharedDir = [
+            "-virtfs local,path=$SHARED_DIR,security_model=none,mount_tag=shared"
+          ];
+          network = [
+            "-netdev user,id=eth0"
+            "-device virtio-net-pci,netdev=eth0"
+          ];
         };
         "riscv64-linux" = {
           nixCross = "riscv64";
@@ -86,11 +105,14 @@
           qemuArgs = [
             "-machine virt"
             "-kernel $KERNEL_DIR/Image"
-
+          ];
+          sharedDir = [
+            "-virtfs local,path=$SHARED_DIR,security_model=none,mount_tag=shared"
+          ];
+          network = [
             "-netdev user,id=eth0"
             "-device virtio-net-device,netdev=eth0"
           ];
-          network = true;
         };
         "s390x-linux" = {
           nixCross = "s390x";
@@ -99,7 +121,13 @@
             "-machine s390-ccw-virtio"
             "-kernel $KERNEL_DIR/bzImage"
           ];
-          network = true;
+          sharedDir = [
+            "-virtfs local,path=$SHARED_DIR,security_model=none,mount_tag=shared"
+          ];
+          network = [
+            "-netdev user,id=eth0"
+            "-device virtio-net-pci,netdev=eth0"
+          ];
         };
         "ppc64-linux" = {
           nixCross = "ppc64";
@@ -107,11 +135,15 @@
           qemuArgs = [
             "-machine powernv"
             "-kernel $KERNEL_DIR/vmlinux"
-
-            "-netdev user,id=eth0"
-            "-device virtio-net-pci,netdev=eth0"
           ];
-          network = true;
+          sharedDir = [
+            "-fsdev local,id=test_dev,path=/tmp/shared,security_model=mapped,multidevs=remap"
+            "-device virtio-9p-pci,fsdev=test_dev,mount_tag=shared,bus=pcie.1"
+          ];
+          network = [
+            "-netdev user,id=eth0"
+            "-device virtio-net-pci,netdev=eth0,bus=pcie.0"
+          ];
         };
         "ppc64le-linux" = {
           nixCross = "powernv";
@@ -119,11 +151,15 @@
           qemuArgs = [
             "-machine powernv"
             "-kernel $KERNEL_DIR/zImage"
-
-            "-netdev user,id=eth0"
-            "-device virtio-net-pci,netdev=eth0"
           ];
-          network = true;
+          sharedDir = [
+            "-fsdev local,id=test_dev,path=/tmp/shared,security_model=mapped,multidevs=remap"
+            "-device virtio-9p-pci,fsdev=test_dev,mount_tag=shared,bus=pcie.1"
+          ];
+          network = [
+            "-netdev user,id=eth0"
+            "-device virtio-net-pci,netdev=eth0,bus=pcie.0"
+          ];
         };
         "loongarch64-linux" = {
           nixCross = "loongarch64-linux";
@@ -133,7 +169,13 @@
             "-cpu la464"
             "-kernel $KERNEL_DIR/vmlinux"
           ];
-          network = true;
+          sharedDir = [
+            "-virtfs local,path=$SHARED_DIR,security_model=none,mount_tag=shared"
+          ];
+          network = [
+            "-netdev user,id=eth0"
+            "-device virtio-net-pci,netdev=eth0"
+          ];
         };
         "mips-linux" = {
           nixCross = "mips-linux-gnu";
@@ -142,7 +184,13 @@
             "-machine malta"
             "-kernel $KERNEL_DIR/vmlinux"
           ];
-          network = true;
+          sharedDir = [
+            "-virtfs local,path=$SHARED_DIR,security_model=none,mount_tag=shared"
+          ];
+          network = [
+            "-netdev user,id=eth0"
+            "-device virtio-net-pci,netdev=eth0"
+          ];
         };
         "mipsel-linux" = {
           nixCross = "mipsel-linux-gnu";
@@ -151,7 +199,13 @@
             "-machine malta"
             "-kernel $KERNEL_DIR/vmlinux"
           ];
-          network = true;
+          sharedDir = [
+            "-virtfs local,path=$SHARED_DIR,security_model=none,mount_tag=shared"
+          ];
+          network = [
+            "-netdev user,id=eth0"
+            "-device virtio-net-pci,netdev=eth0"
+          ];
         };
         "mips64el-linux" = {
           nixCross = "mips64el-linux-gnuabi64";
@@ -162,7 +216,13 @@
             "-kernel $KERNEL_DIR/vmlinux"
             "-append \"console=ttyS0 $KERNEL_CMDLINE\""
           ];
-          network = true;
+          sharedDir = [
+            "-virtfs local,path=$SHARED_DIR,security_model=none,mount_tag=shared"
+          ];
+          network = [
+            "-netdev user,id=eth0"
+            "-device virtio-net-pci,netdev=eth0"
+          ];
         };
       };
 
@@ -180,11 +240,16 @@
           KERNEL_CMDLINE="panic=-1 oops=panic"
           SHARED_DIR=''${SHARED_DIR:-/tmp/shared}
 
-          # TODO: VSOCK: -device vhost-vsock-pci,guest-cid=3 \
-          #
           # Port forward:
-          # -device virtio-net-device,netdev=net \
-          #-netdev user,id=net,hostfwd=tcp::2222-:22
+          # -device virtio-net-device,netdev=eth0 \
+          # -netdev user,id=eth0,hostfwd=tcp::2222-:22
+          # -netdev user,id=n0,hostfwd=hostip:hostport-guestip:guestport
+          #
+          # Debugger:
+          # -S -gdb tcp::''${GDB_PORT}
+          #
+          # VSOCK:
+          # -device vhost-vsock-pci,guest-cid=3
 
           ${pkgs.qemu}/bin/qemu-system-${args.qemuArch} \
             -m 2G \
@@ -193,8 +258,7 @@
             -no-reboot \
             -append "$KERNEL_CMDLINE" \
             -initrd $INITRD_DIR/initrd \
-            -virtfs local,path=$SHARED_DIR,security_model=none,mount_tag=shared \
-            ${toString args.qemuArgs}
+            ${toString args.qemuArgs} ${toString args.network} ${toString args.sharedDir}
         '';
 
       kernelDrvs =
