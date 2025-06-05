@@ -24,5 +24,4 @@ nix build github:patryk4815/kernel#initrd-aarch64-linux --accept-flake-config
 | vm-loongarch64-linux | Little    | ✅          | ✅         |
 | vm-mips-linux        | Big       | ✅          | ✅         |
 | vm-mipsel-linux      | Little    | ✅          | ✅         |
-| ~~vm-mips64-linux~~  | Big       | ✅          | ✅         |
 | vm-mips64el-linux    | Little    | ✅          | ✅         |
