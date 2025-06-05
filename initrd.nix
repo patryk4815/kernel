@@ -29,6 +29,7 @@ let
     mkdir -p /proc /sys /dev
     mount -t proc none /proc
     mount -t sysfs none /sys
+    mount -t debugfs none /sys/kernel/debug
     mount -t devtmpfs devtmpfs /dev
 
     ln -s /proc/self/fd /dev/fd

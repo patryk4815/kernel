@@ -1,7 +1,7 @@
 
 # Run vm
 ```
-nix run github:patryk4815/kernel#vm-aarch64-linux --accept-flake-config
+nix run github:patryk4815/kernel#vm-aarch64-linux --accept-flake-config -- --help
 ```
 
 # Build kernel/initrd

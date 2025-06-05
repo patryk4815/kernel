@@ -78,6 +78,11 @@ stdenv.mkDerivation (finalAttrs: {
       scripts/config --enable CONFIG_DEBUG_INFO_DWARF5
       scripts/config --enable CONFIG_GDB_SCRIPTS
 
+      # debug
+      scripts/config --enable CONFIG_DEBUG_FS
+      scripts/config --enable CONFIG_PTDUMP
+      scripts/config --enable CONFIG_PTDUMP_DEBUGFS
+
       # Virtio
       scripts/config --enable CONFIG_FS_POSIX_ACL
       scripts/config --enable CONFIG_FUSE_FS

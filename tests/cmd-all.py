@@ -22,6 +22,7 @@ def get_vms() -> List[str]:
         check=True,
         text=True,
         stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
     )
     data = json.loads(res.stdout)
     attributes = data["packages"]["x86_64-linux"].keys()
@@ -40,7 +41,7 @@ def run_vm(cmd: str, attribute: str):
         p.sendline(b'echo END')
         p.sendline(b'exit')
 
-        output = p.recvall(timeout=10)
+        output = p.recvuntil(b'END', timeout=60)
         sidx = output.find(b'START')
         eidx = output.find(b'END')
         return output[sidx:eidx]

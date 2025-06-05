@@ -251,13 +251,65 @@
           # VSOCK:
           # -device vhost-vsock-pci,guest-cid=3
 
+          show_help() {
+              echo "Usage: $0 [options]"
+              echo "Options:"
+              echo "  --debug, -d       Enables debug gdbstubs"
+              echo "  --nokaslr         Disable KASLR"
+              echo "  --help, -h        Displays this help message"
+          }
+
+          # Default values
+          DEBUG=false
+          NOKASLR=false
+          QEMU_EXTRACMD=""
+
+          for arg in "$@"; do
+              case "$arg" in
+                  --debug|-d)
+                      DEBUG=true
+                      ;;
+                  --nokaslr)
+                      NOKASLR=true
+                      ;;
+                  --help|-h)
+                      show_help
+                      exit 0
+                      ;;
+                  *)
+                      echo "Unknown option: $arg"
+                      show_help
+                      exit 1
+                      ;;
+              esac
+          done
+
+          if [ "$DEBUG" = true ]; then
+            echo "gdbserver is listening on port :1234. Please use the following VMLINUX file:"
+            echo "$KERNEL_DIR/vmlinux.debug"
+            echo
+            echo
+
+            if [ "$NOKASLR" = false ]; then
+              echo "KASLR is enabled. To disable it, use the --nokaslr option."
+              echo "Note: If KASLR is enabled, you will need to manually calculate the offset,"
+              echo "because debug symbols from vmlinux will not work correctly."
+            fi
+
+            QEMU_EXTRACMD="-s -S"
+          fi
+
+          if [ "$NOKASLR" = true ]; then
+            KERNEL_CMDLINE="$KERNEL_CMDLINE nokaslr"
+          fi
+
           ${pkgs.qemu}/bin/qemu-system-${args.qemuArch} \
             -m 2G \
             -smp 1 \
             -nographic \
             -no-reboot \
             -append "$KERNEL_CMDLINE" \
-            -initrd $INITRD_DIR/initrd \
+            -initrd $INITRD_DIR/initrd $QEMU_EXTRACMD \
             ${toString args.qemuArgs} ${toString args.network} ${toString args.sharedDir}
         '';
 
