@@ -49,6 +49,7 @@ stdenv.mkDerivation (finalAttrs: {
   dontStrip = true;
 
   depsBuildBuild = [ buildPackages.stdenv.cc ];
+# todo: enable `enableParallelBuilding = true;`
 
   env = {
     ARCH = "${stdenv.hostPlatform.linuxArch}";

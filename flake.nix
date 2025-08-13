@@ -46,7 +46,7 @@
             "-virtfs local,path=$SHARED_DIR,security_model=none,mount_tag=shared"
           ];
           network = [
-            "-netdev user,id=eth0"
+            "-netdev user,id=eth0$PORT_FORWARD"
             "-device virtio-net-pci,netdev=eth0"
           ];
         };
@@ -62,7 +62,7 @@
             "-virtfs local,path=$SHARED_DIR,security_model=none,mount_tag=shared"
           ];
           network = [
-            "-netdev user,id=eth0"
+            "-netdev user,id=eth0$PORT_FORWARD"
             "-device virtio-net-pci,netdev=eth0"
           ];
         };
@@ -79,7 +79,7 @@
             "-device virtio-9p-device,fsdev=test_dev,mount_tag=shared"
           ];
           network = [
-            "-netdev user,id=eth0"
+            "-netdev user,id=eth0$PORT_FORWARD"
             "-device virtio-net-device,netdev=eth0"
           ];
         };
@@ -95,7 +95,7 @@
             "-virtfs local,path=$SHARED_DIR,security_model=none,mount_tag=shared"
           ];
           network = [
-            "-netdev user,id=eth0"
+            "-netdev user,id=eth0$PORT_FORWARD"
             "-device virtio-net-pci,netdev=eth0"
           ];
         };
@@ -110,7 +110,7 @@
             "-virtfs local,path=$SHARED_DIR,security_model=none,mount_tag=shared"
           ];
           network = [
-            "-netdev user,id=eth0"
+            "-netdev user,id=eth0$PORT_FORWARD"
             "-device virtio-net-device,netdev=eth0"
           ];
         };
@@ -125,7 +125,7 @@
             "-virtfs local,path=$SHARED_DIR,security_model=none,mount_tag=shared"
           ];
           network = [
-            "-netdev user,id=eth0"
+            "-netdev user,id=eth0$PORT_FORWARD"
             "-device virtio-net-pci,netdev=eth0"
           ];
         };
@@ -141,7 +141,7 @@
             "-device virtio-9p-pci,fsdev=test_dev,mount_tag=shared,bus=pcie.1"
           ];
           network = [
-            "-netdev user,id=eth0"
+            "-netdev user,id=eth0$PORT_FORWARD"
             "-device virtio-net-pci,netdev=eth0,bus=pcie.0"
           ];
         };
@@ -157,7 +157,7 @@
             "-device virtio-9p-pci,fsdev=test_dev,mount_tag=shared,bus=pcie.1"
           ];
           network = [
-            "-netdev user,id=eth0"
+            "-netdev user,id=eth0$PORT_FORWARD"
             "-device virtio-net-pci,netdev=eth0,bus=pcie.0"
           ];
         };
@@ -173,7 +173,7 @@
             "-virtfs local,path=$SHARED_DIR,security_model=none,mount_tag=shared"
           ];
           network = [
-            "-netdev user,id=eth0"
+            "-netdev user,id=eth0$PORT_FORWARD"
             "-device virtio-net-pci,netdev=eth0"
           ];
         };
@@ -188,7 +188,7 @@
             "-virtfs local,path=$SHARED_DIR,security_model=none,mount_tag=shared"
           ];
           network = [
-            "-netdev user,id=eth0"
+            "-netdev user,id=eth0$PORT_FORWARD"
             "-device virtio-net-pci,netdev=eth0"
           ];
         };
@@ -203,7 +203,7 @@
             "-virtfs local,path=$SHARED_DIR,security_model=none,mount_tag=shared"
           ];
           network = [
-            "-netdev user,id=eth0"
+            "-netdev user,id=eth0$PORT_FORWARD"
             "-device virtio-net-pci,netdev=eth0"
           ];
         };
@@ -220,7 +220,7 @@
             "-virtfs local,path=$SHARED_DIR,security_model=none,mount_tag=shared"
           ];
           network = [
-            "-netdev user,id=eth0"
+            "-netdev user,id=eth0$PORT_FORWARD"
             "-device virtio-net-pci,netdev=eth0"
           ];
         };
@@ -239,6 +239,8 @@
           INITRD_DIR=${initrd}
           KERNEL_CMDLINE="panic=-1 oops=panic"
           SHARED_DIR=''${SHARED_DIR:-/tmp/shared}
+          PORT_FORWARD=""
+          GDB_PORT="1234"
 
           # Port forward:
           # -device virtio-net-device,netdev=eth0 \
@@ -256,6 +258,8 @@
               echo "Options:"
               echo "  --debug, -d       Enables debug gdbstubs"
               echo "  --nokaslr         Disable KASLR"
+              echo "  -g PORT           Set GDB port (default: $GDB_PORT)"
+              echo "  -p H:G            Forward host port H to guest port G (can be repeated)"
               echo "  --help, -h        Displays this help message"
           }
 
@@ -264,13 +268,24 @@
           NOKASLR=false
           QEMU_EXTRACMD=""
 
-          for arg in "$@"; do
-              case "$arg" in
+          while [ $# -gt 0 ]; do
+              case "$1" in
                   --debug|-d)
                       DEBUG=true
                       ;;
                   --nokaslr)
                       NOKASLR=true
+                      ;;
+                  -g)
+                      GDB_PORT="$2"
+                      shift 2
+                      ;;
+                  -p)
+                      hp="$2"
+                      host="''${hp%%:*}"
+                      guest="''${hp##*:}"
+                      PORT_FORWARD="''${PORT_FORWARD},hostfwd=tcp::''${host}-:''${guest}"
+                      shift 2
                       ;;
                   --help|-h)
                       show_help
@@ -285,7 +300,7 @@
           done
 
           if [ "$DEBUG" = true ]; then
-            echo "gdbserver is listening on port :1234. Please use the following VMLINUX file:"
+            echo "gdbserver is listening on port :$GDB_PORT. Please use the following VMLINUX file:"
             echo "$KERNEL_DIR/vmlinux.debug"
             echo
             echo
@@ -296,7 +311,7 @@
               echo "because debug symbols from vmlinux will not work correctly."
             fi
 
-            QEMU_EXTRACMD="-s -S"
+            QEMU_EXTRACMD="-gdb tcp::$GDB_PORT -S"
           fi
 
           if [ "$NOKASLR" = true ]; then

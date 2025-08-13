@@ -3,6 +3,15 @@
 ```
 nix run github:patryk4815/kernel#vm-aarch64-linux --accept-flake-config -- --help
 ```
+### Options:
+```
+Options:
+  --debug, -d       Enables debug gdbstubs
+  --nokaslr         Disable KASLR
+  -g PORT           Set GDB port (default: 1234)
+  -p H:G            Forward host port H to guest port G (can be repeated)
+  --help, -h        Displays this help message
+```
 
 # Build kernel/initrd
 ```
