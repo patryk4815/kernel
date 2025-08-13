@@ -259,7 +259,7 @@
               echo "  --debug, -d       Enables debug gdbstubs"
               echo "  --nokaslr         Disable KASLR"
               echo "  -g PORT           Set GDB port (default: $GDB_PORT)"
-              echo "  -p H:G            Forward host port H to guest port G (can be repeated)"
+              echo "  -p H:G            Forward host port H to guest port G (Docker-style, can be repeated)"
               echo "  --help, -h        Displays this help message"
           }
 
