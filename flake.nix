@@ -272,9 +272,11 @@
               case "$1" in
                   --debug|-d)
                       DEBUG=true
+                      shift
                       ;;
                   --nokaslr)
                       NOKASLR=true
+                      shift
                       ;;
                   -g)
                       GDB_PORT="$2"
