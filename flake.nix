@@ -87,8 +87,8 @@
           nixCross = "aarch64-multiplatform";
           qemuArch = "aarch64";
           qemuArgs = [
-            "-machine virt"
-            "-cpu cortex-a57"
+            "-machine virt,mte=on"
+            "-cpu max"
             "-kernel $KERNEL_DIR/Image"
           ];
           sharedDir = [
@@ -242,6 +242,8 @@
           PORT_FORWARD=""
           GDB_PORT="1234"
 
+          mkdir -p "$SHARED_DIR"
+
           # Port forward:
           # -device virtio-net-device,netdev=eth0 \
           # -netdev user,id=eth0,hostfwd=tcp::2222-:22
@@ -335,11 +337,13 @@
         let
           system = forceSystemLinux system';
         in
-        (nixpkgs.lib.attrsets.mapAttrs' (cross: value: {
-          name = "kernel-${cross}";
+        (nixpkgs.lib.attrsets.mapAttrs' (archName: value: {
+          name = "kernel-${archName}";
           value =
-            nixpkgs.legacyPackages.${system}.pkgsCross.${vms.${cross}.nixCross}.callPackage ./kernel.nix
-              { };
+            nixpkgs.legacyPackages.${system}.pkgsCross.${vms.${archName}.nixCross}.callPackage ./kernel.nix
+              {
+                kernelConfig = vms.${archName}.kernelConfig or null;
+              };
         }) vms);
 
       initrdDrvs =
