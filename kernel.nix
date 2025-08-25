@@ -15,14 +15,15 @@
   zstd,
   hexdump,
   ubootTools,
+  kernelConfig ? null,
 }:
 stdenv.mkDerivation (finalAttrs: {
   name = "linux";
-  version = "6.14.6";
+  version = "6.16.3";
 
   src = fetchurl {
     url = "https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-${finalAttrs.version}.tar.xz";
-    hash = "sha256-IYF/GZjiIw+B9+T2Bfpv3LBA4U+ifZnCfdsWznSXl6k=";
+    hash = "sha256-gEOboFXBL1Qav0S4/DybglqPQvwlzmdGLsflVsV5C4U=";
   };
 
   buildInputs = [ ];
@@ -49,7 +50,7 @@ stdenv.mkDerivation (finalAttrs: {
   dontStrip = true;
 
   depsBuildBuild = [ buildPackages.stdenv.cc ];
-# todo: enable `enableParallelBuilding = true;`
+  enableParallelBuilding = true;
 
   env = {
     ARCH = "${stdenv.hostPlatform.linuxArch}";
@@ -67,7 +68,6 @@ stdenv.mkDerivation (finalAttrs: {
           "defconfig";
     in
     ''
-      buildFlagsArray+=("-j$NIX_BUILD_CORES")
       make ${defconfig}
       patchShebangs scripts/config
 
@@ -114,6 +114,9 @@ stdenv.mkDerivation (finalAttrs: {
     + lib.optionalString stdenv.hostPlatform.isLittleEndian ''
       scripts/config --disable CONFIG_CPU_BIG_ENDIAN
       scripts/config --enable CONFIG_CPU_LITTLE_ENDIAN
+    ''
+    + lib.optionalString (kernelConfig != null) ''
+
     '';
 
   installPhase = ''
