@@ -83,6 +83,8 @@ stdenv.mkDerivation (finalAttrs: {
       scripts/config --enable CONFIG_DEBUG_FS
       scripts/config --enable CONFIG_PTDUMP
       scripts/config --enable CONFIG_PTDUMP_DEBUGFS
+      scripts/config --enable CONFIG_ANON_VMA_NAME
+      scripts/config --enable CONFIG_IKCONFIG_PROC
 
       # Virtio
       scripts/config --enable CONFIG_FS_POSIX_ACL
