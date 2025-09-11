@@ -75,7 +75,7 @@
             "-kernel $KERNEL_DIR/zImage"
           ];
           sharedDir = [
-            "-fsdev local,id=test_dev,path=/tmp/shared,security_model=mapped,multidevs=remap"
+            "-fsdev local,id=test_dev,path=/tmp/shared,security_model=none,multidevs=remap"
             "-device virtio-9p-device,fsdev=test_dev,mount_tag=shared"
           ];
           network = [
@@ -137,7 +137,7 @@
             "-kernel $KERNEL_DIR/vmlinux"
           ];
           sharedDir = [
-            "-fsdev local,id=test_dev,path=/tmp/shared,security_model=mapped,multidevs=remap"
+            "-fsdev local,id=test_dev,path=/tmp/shared,security_model=none,multidevs=remap"
             "-device virtio-9p-pci,fsdev=test_dev,mount_tag=shared,bus=pcie.1"
           ];
           network = [
@@ -153,7 +153,7 @@
             "-kernel $KERNEL_DIR/zImage"
           ];
           sharedDir = [
-            "-fsdev local,id=test_dev,path=/tmp/shared,security_model=mapped,multidevs=remap"
+            "-fsdev local,id=test_dev,path=/tmp/shared,security_model=none,multidevs=remap"
             "-device virtio-9p-pci,fsdev=test_dev,mount_tag=shared,bus=pcie.1"
           ];
           network = [
