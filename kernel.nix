@@ -105,6 +105,11 @@ stdenv.mkDerivation (finalAttrs: {
       scripts/config --enable CONFIG_NET_9P_VIRTIO
       scripts/config --enable CONFIG_9P_FS
       scripts/config --enable CONFIG_9P_FS_POSIX_ACL
+
+      # extra
+      scripts/config --enable CONFIG_SQUASHFS
+      scripts/config --enable CONFIG_SQUASHFS_ZLIB
+
       sed -i 's/=m$/=n/' .config
     ''
     + lib.optionalString stdenv.hostPlatform.isMips ''
