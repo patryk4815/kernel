@@ -28,24 +28,23 @@ stdenv.mkDerivation (finalAttrs: {
 
   buildInputs = [ ];
 
-  nativeBuildInputs =
-    [
-      flex
-      bison
-      bc
-      perl
-      pkg-config
-      python3Minimal
-      elfutils
-      openssl
-    ]
-    ++ lib.optionals stdenv.targetPlatform.isLoongArch64 [
-      hexdump
-      zstd
-    ]
-    ++ lib.optionals stdenv.targetPlatform.isMips [
-      ubootTools
-    ];
+  nativeBuildInputs = [
+    flex
+    bison
+    bc
+    perl
+    pkg-config
+    python3Minimal
+    elfutils
+    openssl
+  ]
+  ++ lib.optionals stdenv.targetPlatform.isLoongArch64 [
+    hexdump
+    zstd
+  ]
+  ++ lib.optionals stdenv.targetPlatform.isMips [
+    ubootTools
+  ];
   strictDeps = true;
   dontStrip = true;
 
