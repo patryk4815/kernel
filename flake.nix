@@ -70,7 +70,7 @@
           nixCross = "armv7l-hf-multiplatform";
           qemuArch = "arm";
           qemuArgs = [
-            "-machine virt"
+            "-machine virt-2.9"
             "-cpu cortex-a7"
             "-kernel $KERNEL_DIR/zImage"
           ];
