@@ -25,7 +25,7 @@ let
   init = writeScript "init" ''
     #! /bin/ash -e
 
-    export PATH=/bin:/sbin
+    export PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin
     mkdir -p /proc /sys /dev
     mount -t proc none /proc
     mount -t sysfs none /sys
