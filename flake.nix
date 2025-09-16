@@ -36,6 +36,7 @@
       vms = {
         "i686-linux" = {
           nixCross = "gnu32";
+          dockerPlatform = "linux/386";
           qemuArch = "i386";
           qemuArgs = [
             "-machine pc"
@@ -52,6 +53,7 @@
         };
         "x86_64-linux" = {
           nixCross = "gnu64";
+          dockerPlatform = "linux/amd64";
           qemuArch = "x86_64";
           qemuArgs = [
             "-machine pc"
@@ -68,6 +70,7 @@
         };
         "armv7l-linux" = {
           nixCross = "armv7l-hf-multiplatform";
+          dockerPlatform = "linux/arm";
           qemuArch = "arm";
           qemuArgs = [
             "-machine virt-2.9"
@@ -85,6 +88,7 @@
         };
         "aarch64-linux" = {
           nixCross = "aarch64-multiplatform";
+          dockerPlatform = "linux/arm64";
           qemuArch = "aarch64";
           qemuArgs = [
             "-machine virt,mte=on"
@@ -101,6 +105,7 @@
         };
         "riscv64-linux" = {
           nixCross = "riscv64";
+          dockerPlatform = "linux/riscv64";
           qemuArch = "riscv64";
           qemuArgs = [
             "-machine virt"
@@ -116,6 +121,7 @@
         };
         "s390x-linux" = {
           nixCross = "s390x";
+          dockerPlatform = "linux/s390x";
           qemuArch = "s390x";
           qemuArgs = [
             "-machine s390-ccw-virtio"
@@ -131,6 +137,7 @@
         };
         "ppc64-linux" = {
           nixCross = "ppc64";
+          dockerPlatform = "linux/ppc64";
           qemuArch = "ppc64";
           qemuArgs = [
             "-machine powernv"
@@ -147,6 +154,7 @@
         };
         "ppc64le-linux" = {
           nixCross = "powernv";
+          dockerPlatform = "linux/ppc64le";
           qemuArch = "ppc64";
           qemuArgs = [
             "-machine powernv"
@@ -163,6 +171,7 @@
         };
         "loongarch64-linux" = {
           nixCross = "loongarch64-linux";
+          dockerPlatform = "linux/loong64";
           qemuArch = "loongarch64";
           qemuArgs = [
             "-machine virt"
@@ -179,6 +188,7 @@
         };
         "mips-linux" = {
           nixCross = "mips-linux-gnu";
+          dockerPlatform = "linux/mips";
           qemuArch = "mips";
           qemuArgs = [
             "-machine malta"
@@ -194,6 +204,7 @@
         };
         "mipsel-linux" = {
           nixCross = "mipsel-linux-gnu";
+          dockerPlatform = "linux/mipsle";
           qemuArch = "mipsel";
           qemuArgs = [
             "-machine malta"
@@ -209,6 +220,7 @@
         };
         "mips64el-linux" = {
           nixCross = "mips64el-linux-gnuabi64";
+          dockerPlatform = "linux/mips64le";
           qemuArch = "mips64el";
           qemuArgs = [
             "-machine loongson3-virt"
@@ -226,6 +238,30 @@
         };
       };
 
+      download_docker =
+        pkgs:
+        pkgs.runCommand "download_docker" {
+          nativeBuildInputs = [
+            pkgs.makeWrapper
+          ];
+        } ''
+          mkdir -p $out/bin/
+          cp ${./download_docker.sh} $out/bin/download_docker.sh
+          patchShebangs $out/bin/download_docker.sh
+          wrapProgram $out/bin/download_docker.sh \
+            --set PATH ${
+              pkgs.lib.makeBinPath [
+                pkgs.coreutils
+                pkgs.findutils
+                pkgs.gnugrep
+                pkgs.gnused
+                pkgs.skopeo
+                pkgs.squashfs-tools-ng
+                pkgs.undocker
+              ]
+            }
+        '';
+
       run_qemu =
         system: cross:
         let
@@ -233,6 +269,7 @@
           pkgs = nixpkgs.legacyPackages.${system};
           initrd = self.packages.${system}."initrd-${cross}";
           kernel = self.packages.${system}."kernel-${cross}";
+          download_docker = self.packages.${system}.download_docker;
         in
         pkgs.writeShellScriptBin "run" ''
           KERNEL_DIR=${kernel}
@@ -260,6 +297,7 @@
               echo "Options:"
               echo "  --debug, -d       Enables debug gdbstubs"
               echo "  --nokaslr         Disable KASLR"
+              echo "  -i                Docker image (default: none)"
               echo "  -g PORT           Set GDB port (default: $GDB_PORT)"
               echo "  -p H:G            Forward host port H to guest port G (Docker-style, can be repeated)"
               echo "  --help, -h        Displays this help message"
@@ -269,6 +307,7 @@
           DEBUG=false
           NOKASLR=false
           QEMU_EXTRACMD=""
+          DOCKER_IMAGE=""
 
           while [ $# -gt 0 ]; do
               case "$1" in
@@ -282,6 +321,10 @@
                       ;;
                   -g)
                       GDB_PORT="$2"
+                      shift 2
+                      ;;
+                  -i)
+                      DOCKER_IMAGE="$2"
                       shift 2
                       ;;
                   -p)
@@ -320,6 +363,18 @@
 
           if [ "$NOKASLR" = true ]; then
             KERNEL_CMDLINE="$KERNEL_CMDLINE nokaslr"
+          fi
+
+          if [ -n "$DOCKER_IMAGE" ]; then
+            QEMU_SQUASHFS=$(${download_docker}/bin/download_docker.sh ${args.dockerPlatform} $DOCKER_IMAGE)
+            EXIT_CODE=$?
+            if [ $EXIT_CODE -ne 0 ]; then
+                echo "Error downloading Docker image: exit code $EXIT_CODE"
+                exit $EXIT_CODE
+            fi
+            if [ -n "$QEMU_SQUASHFS" ]; then
+                QEMU_EXTRACMD="$QEMU_EXTRACMD -drive file=$QEMU_SQUASHFS,format=raw,if=virtio"
+            fi
           fi
 
           ${pkgs.qemu}/bin/qemu-system-${args.qemuArch} \
@@ -369,7 +424,7 @@
       packages = forAllSystems (
         system:
         {
-
+            download_docker = download_docker nixpkgs.legacyPackages.${system};
         }
         // (vmDrvs system)
         // (kernelDrvs system)
