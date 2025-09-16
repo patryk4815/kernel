@@ -44,6 +44,7 @@ SQFSFILE="${CACHEDIR}/image.squashfs"
 if [ -f "$SQFSFILE" ]; then
   log "[INFO] Found existing squashfs file: $SQFSFILE"
   log "[INFO] Skipping build."
+  echo $SQFSFILE
   exit 0
 fi
 
