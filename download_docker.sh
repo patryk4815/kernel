@@ -27,7 +27,6 @@ else
   log "[ERROR] Neither XDG_CACHE_HOME nor HOME is set — cannot determine cache directory." >&2
   exit 1
 fi
-# TODO: --refresh option
 
 HASH="$(echo -n "${OS}-${ARCH}-${IMAGE}" | sha256sum | cut -d' ' -f1)"
 CACHEDIR="${BASECACHE}/patryk4815-kernel/${HASH}"
