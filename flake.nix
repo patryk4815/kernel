@@ -281,15 +281,7 @@
 
           mkdir -p "$SHARED_DIR"
 
-          # Port forward:
-          # -device virtio-net-device,netdev=eth0 \
-          # -netdev user,id=eth0,hostfwd=tcp::2222-:22
-          # -netdev user,id=n0,hostfwd=hostip:hostport-guestip:guestport
-          #
-          # Debugger:
-          # -S -gdb tcp::''${GDB_PORT}
-          #
-          # VSOCK:
+          # VSOCK (linux only):
           # -device vhost-vsock-pci,guest-cid=3
 
           show_help() {

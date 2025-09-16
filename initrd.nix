@@ -6,15 +6,12 @@
   pkgsStatic,
   buildEnv,
   busybox,
-  dhcpcd,
-  socat,
 }:
 let
   rootfs = buildEnv {
     name = "rootfs-env";
     paths = map lib.getBin [
       busybox
-      #      socat
     ];
     pathsToLink = [
       "/bin"
@@ -65,7 +62,6 @@ let
     # mount -t virtiofs shared /mnt
 
     ifconfig lo up
-    # ifconfig eth0 up
     udhcpc
 
     setsid cttyhack /bin/sh
