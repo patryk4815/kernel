@@ -22,7 +22,7 @@ let
   init = writeScript "init" ''
     #! /bin/ash -e
 
-    export PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin
+    export PATH=/bin:/sbin
     mkdir -p /proc /sys /dev
     mount -t proc none /proc
     mount -t sysfs none /sys
@@ -64,7 +64,35 @@ let
     ifconfig lo up
     udhcpc
 
-    setsid cttyhack /bin/sh
+    if [ -e /dev/vda ]; then
+        exec setsid cttyhack /init2
+    else
+        exec setsid cttyhack /bin/sh
+    fi
+  '';
+
+  init2 = writeScript "init2" ''
+    #! /bin/ash -e
+
+    export PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin
+
+    mkdir -p /new_root
+    mount -t tmpfs tmpfs /new_root
+    mkdir -p /new_root/lower /new_root/upper /new_root/work /new_root/merged
+    mount -t squashfs /dev/vda /new_root/lower
+
+    mount -t overlay overlay -o lowerdir=/new_root/lower,upperdir=/new_root/upper,workdir=/new_root/work /new_root/merged
+    mount --move /proc /new_root/merged/proc
+    mount --move /dev /new_root/merged/dev
+    mount --move /sys /new_root/merged/sys
+    mount --move /run /new_root/merged/run
+    mount --move /tmp /new_root/merged/tmp
+    mount --move /mnt /new_root/merged/mnt
+
+    touch /new_root/merged/etc/resolv.conf
+    mount --bind /etc/resolv.conf /new_root/merged/etc/resolv.conf
+
+    exec switch_root /new_root/merged /bin/sh
   '';
 
   initrd = makeInitrd {
@@ -74,6 +102,10 @@ let
       {
         object = init;
         symlink = "/init";
+      }
+      {
+        object = init2;
+        symlink = "/init2";
       }
       {
         object = rootfs + "/bin";
