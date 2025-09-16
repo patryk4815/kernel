@@ -106,6 +106,7 @@ stdenv.mkDerivation (finalAttrs: {
       scripts/config --enable CONFIG_9P_FS_POSIX_ACL
 
       # extra
+      scripts/config --enable CONFIG_OVERLAY_FS
       scripts/config --enable CONFIG_SQUASHFS
       scripts/config --enable CONFIG_SQUASHFS_ZLIB
 
