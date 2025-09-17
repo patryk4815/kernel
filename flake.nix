@@ -289,7 +289,7 @@
               echo "Options:"
               echo "  --debug, -d       Enables debug gdbstubs"
               echo "  --nokaslr         Disable KASLR"
-              echo "  -i                Docker image (default: none)"
+              echo "  -i IMAGE          Docker image (default: none)"
               echo "  -g PORT           Set GDB port (default: $GDB_PORT)"
               echo "  -p H:G            Forward host port H to guest port G (Docker-style, can be repeated)"
               echo "  --help, -h        Displays this help message"
