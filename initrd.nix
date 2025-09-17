@@ -82,6 +82,7 @@ let
     mount -t squashfs /dev/vda /new_root/lower
 
     mount -t overlay overlay -o lowerdir=/new_root/lower,upperdir=/new_root/upper,workdir=/new_root/work /new_root/merged
+    mkdir -p /new_root/merged/proc /new_root/merged/dev /new_root/merged/sys /new_root/merged/run /new_root/merged/tmp /new_root/merged/mnt
     mount --move /proc /new_root/merged/proc
     mount --move /dev /new_root/merged/dev
     mount --move /sys /new_root/merged/sys
@@ -89,8 +90,8 @@ let
     mount --move /tmp /new_root/merged/tmp
     mount --move /mnt /new_root/merged/mnt
 
-    touch /new_root/merged/etc/resolv.conf
-    mount --bind /etc/resolv.conf /new_root/merged/etc/resolv.conf
+    rm -f /new_root/merged/etc/resolv.conf
+    cp -f /etc/resolv.conf /new_root/merged/etc/resolv.conf
 
     exec switch_root /new_root/merged /bin/sh
   '';
