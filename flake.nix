@@ -365,7 +365,7 @@
                 exit $EXIT_CODE
             fi
             if [ -n "$QEMU_SQUASHFS" ]; then
-                QEMU_EXTRACMD="$QEMU_EXTRACMD -drive file=$QEMU_SQUASHFS,format=raw,if=virtio"
+                QEMU_EXTRACMD="$QEMU_EXTRACMD -drive file=$QEMU_SQUASHFS,file.locking=off,format=raw,if=virtio"
             fi
           fi
 
