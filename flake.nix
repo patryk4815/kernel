@@ -287,12 +287,13 @@
           show_help() {
               echo "Usage: $0 [options]"
               echo "Options:"
-              echo "  --debug, -d       Enables debug gdbstubs"
-              echo "  --nokaslr         Disable KASLR"
-              echo "  -i IMAGE          Docker image (default: none)"
-              echo "  -g PORT           Set GDB port (default: $GDB_PORT)"
-              echo "  -p H:G            Forward host port H to guest port G (Docker-style, can be repeated)"
-              echo "  --help, -h        Displays this help message"
+              echo "  --debug, -d          Enables debug gdbstubs"
+              echo "  --nokaslr            Disable KASLR"
+              echo "  --platform PLAT      Platform for docker image eg. linux/amd64 (default: target-kernel)"
+              echo "  -i IMAGE             Docker image (default: none)"
+              echo "  -g PORT              Set GDB port (default: $GDB_PORT)"
+              echo "  -p H:G               Forward host port H to guest port G (Docker-style, can be repeated)"
+              echo "  --help, -h           Displays this help message"
           }
 
           # Default values
@@ -300,6 +301,7 @@
           NOKASLR=false
           QEMU_EXTRACMD=""
           DOCKER_IMAGE=""
+          DOCKER_PLATFORM="${args.dockerPlatform}"
 
           while [ $# -gt 0 ]; do
               case "$1" in
@@ -317,6 +319,10 @@
                       ;;
                   -i)
                       DOCKER_IMAGE="$2"
+                      shift 2
+                      ;;
+                  --platform)
+                      DOCKER_PLATFORM="$2"
                       shift 2
                       ;;
                   -p)
@@ -358,7 +364,7 @@
           fi
 
           if [ -n "$DOCKER_IMAGE" ]; then
-            QEMU_SQUASHFS=$(${download_docker}/bin/download_docker.sh ${args.dockerPlatform} $DOCKER_IMAGE)
+            QEMU_SQUASHFS=$(${download_docker}/bin/download_docker.sh $DOCKER_PLATFORM $DOCKER_IMAGE)
             EXIT_CODE=$?
             if [ $EXIT_CODE -ne 0 ]; then
                 echo "Error downloading Docker image: exit code $EXIT_CODE"

@@ -6,12 +6,13 @@ nix run github:patryk4815/kernel#vm-aarch64-linux --accept-flake-config -- --hel
 ### Options:
 ```
 Options:
-  --debug, -d       Enables debug gdbstubs
-  --nokaslr         Disable KASLR
-  -i IMAGE          Docker image (default: none)
-  -g PORT           Set GDB port (default: 1234)
-  -p H:G            Forward host port H to guest port G (Docker-style, can be repeated)
-  --help, -h        Displays this help message
+  --debug, -d          Enables debug gdbstubs
+  --nokaslr            Disable KASLR
+  --platform PLAT      Platform for docker image eg. linux/amd64 (default: target-kernel)
+  -i IMAGE             Docker image (default: none)
+  -g PORT              Set GDB port (default: 1234)
+  -p H:G               Forward host port H to guest port G (Docker-style, can be repeated)
+  --help, -h           Displays this help message
 ```
 
 # Matrix
