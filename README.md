@@ -30,3 +30,30 @@ Options:
 | vm-mips-linux        | Big       | ✅          | ✅         |
 | vm-mipsel-linux      | Little    | ✅          | ✅         |
 | vm-mips64el-linux    | Little    | ✅          | ✅         |
+
+
+### Distros:
+* mispel - Debian 12 "bookworm" last release
+* misp64el - debian
+* mips - openwrt, debian ostatni release 9 stretch
+* ppc64 - adelie linux, chimera Linux
+* ppc64le - most of distros
+* s390x - most of distros
+* i686 - most of distros
+* x86_64 - most of distros
+* armv7l - ?? most of distros
+* aarch64 - most of distros
+* riscv64 - most of distros
+* loongarch64 - most of distros
+
+### Docker images:
+* mipsel - vicamo/debian:bookworm (debian 12)
+* misp64el - vicamo/debian:bookworm (debian 12) / debian:bookworm
+* mips - openwrt/rootfs:malta-be (linux/mips_24kc)
+* ppc64 - adelielinux/adelie:latest
+
+TODO:
+- console=hvc0 + CONFIG_VIRTIO_CONSOLE=y  (virtio_console)
+agetty /dev/hvc0 9600 vt100
+https://blog.memzero.de/toying-with-virtio/
+
