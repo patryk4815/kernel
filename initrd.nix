@@ -58,7 +58,7 @@ let
 
     # shared dir
     mkdir /mnt
-    mount -t 9p -o trans=virtio shared /mnt
+    mount -t 9p -o trans=virtio shared /mnt || true
     # mount -t virtiofs shared /mnt
 
     ifconfig lo up
@@ -88,7 +88,7 @@ let
     mount --move /sys /new_root/merged/sys
     mount --move /run /new_root/merged/run
     mount --move /tmp /new_root/merged/tmp
-    mount --move /mnt /new_root/merged/mnt
+    mount --move /mnt /new_root/merged/mnt || true
 
     rm -f /new_root/merged/etc/resolv.conf
     cp -f /etc/resolv.conf /new_root/merged/etc/resolv.conf
