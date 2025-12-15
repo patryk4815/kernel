@@ -40,7 +40,7 @@ else:
 
 hash_input = f"{os_name}-{arch}-{image}".encode("utf-8")
 hash_value = hashlib.sha256(hash_input).hexdigest()
-cache_dir = os.path.join(base_cache_dir, "patryk4815-kernel", hash_value)
+cache_dir = os.path.join(base_cache_dir, "patryk4815-kernel", "images", hash_value)
 
 if refresh and os.path.exists(cache_dir):
     shutil.rmtree(cache_dir)

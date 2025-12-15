@@ -285,6 +285,7 @@
             --set PATH ${
               pkgs.lib.makeBinPath [
                 pkgs.qemu
+                pkgs.e2fsprogs
                 download_docker
               ]
             } \

@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
 import argparse
+import atexit
 import json
 import os
 import shutil
 import subprocess
 import sys
+import tempfile
 
 KERNEL_DIR = os.getenv('KERNEL_DIR')
 INITRD_DIR = os.getenv('INITRD_DIR')
@@ -25,6 +27,29 @@ def run_command(cmd):
     proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     return proc.returncode, proc.stdout.strip(), proc.stderr.strip()
 
+def get_cache_dir():
+    xdg_cache = os.environ.get("XDG_CACHE_HOME")
+    home = os.environ.get("HOME")
+    base_cache_dir = ''
+
+    if xdg_cache:
+        base_cache_dir = xdg_cache
+    elif home:
+        base_cache_dir = os.path.join(home, ".cache")
+    else:
+        print("[ERROR] Neither XDG_CACHE_HOME nor HOME is set — cannot determine cache directory.", file=sys.stderr)
+        sys.exit(1)
+    return os.path.join(base_cache_dir, "patryk4815-kernel")
+
+def parse_size(size_str: str) -> int:
+    size_str = size_str.strip().upper()
+    if size_str.endswith("G"):
+        return int(size_str[:-1]) * 1024**3
+    if size_str.endswith("M"):
+        return int(size_str[:-1]) * 1024**2
+    if size_str.endswith("K"):
+        return int(size_str[:-1]) * 1024
+    return int(size_str)
 
 def main():
     parser = argparse.ArgumentParser(
@@ -89,8 +114,21 @@ def main():
         default="1",
         help="Number of virtual CPUs (Docker-style; default: 1)"
     )
+    parser.add_argument(
+        "--runtime",
+        choices=["ephemeral", "tmpfs"],
+        default="ephemeral",
+        help="Runtime storage type: ephemeral (ext4), tmpfs (RAM)"
+    )
+    parser.add_argument(
+        "--runtime-size",
+        metavar="SIZE",
+        default="10G",
+        help="Runtime disk size (Docker-style, e.g. 512M, 2G, 10G; default: 10G)"
+    )
     args = parser.parse_args()
 
+    cache_dir = get_cache_dir()
     kernel_cmdline = DEFAULT_KERNEL_CMDLINE.copy()
     qemu_extra_cmd = []
     port_forward_opts = []
@@ -101,6 +139,10 @@ def main():
             port_forward_opts.append(
                 f"hostfwd=tcp::{int(host)}-:{int(guest)}"
             )
+
+    if args.volumes and len(args.volumes) >= 2:
+        print("Only supported 1 volume right now.", file=sys.stderr)
+        sys.exit(1)
 
     if args.debug:
         print(f"gdbserver is listening on port :{args.gdb_port}")
@@ -140,6 +182,51 @@ def main():
                 f"file={stdout},file.locking=off,format=raw,if=virtio,readonly=on"
             ])
 
+    if args.runtime == "ephemeral":
+        runtime_size_bytes = parse_size(args.runtime_size)
+        runtime_path = os.path.join(cache_dir, "tmp")
+        try:
+            # TODO: jakos lepiej cleanup
+            shutil.rmtree(runtime_path)
+        except:
+            pass
+        os.makedirs(runtime_path, exist_ok=True)
+
+        runtime_img = tempfile.NamedTemporaryFile(
+            prefix="qemu-runtime-",
+            suffix=".ext4.img",
+            delete=False,
+            dir=runtime_path,
+        )
+        runtime_img_path = runtime_img.name
+        runtime_img.close()
+
+        # sparse file
+        with open(runtime_img_path, "wb") as f:
+            f.truncate(runtime_size_bytes)
+
+        # mkfs.ext4
+        mkfs_cmd = [
+            "mkfs.ext4",
+            "-F",
+            "-q",
+            "-E", "lazy_itable_init=0,lazy_journal_init=0",
+            runtime_img_path,
+        ]
+        rc, _, err = run_command(mkfs_cmd)
+        if rc != 0:
+            print("mkfs.ext4 failed", file=sys.stderr)
+            if err:
+                print(err, file=sys.stderr)
+            sys.exit(rc)
+
+        qemu_extra_cmd.extend([
+            "-drive",
+            f"file={runtime_img_path},if=virtio,format=raw"
+        ])
+    elif args.runtime == "tmpfs":
+        pass
+
     # ==== QEMU COMMAND ====
     qemu_cmd = [
         QEMU_BINARY,
@@ -162,9 +249,11 @@ def main():
         cmd = cmd.replace("@KERNEL_DIR@", KERNEL_DIR)
         qemu_cmd.append(cmd)
 
-    # for cmd in QEMU_SHARED_DIR:
-    #     cmd = cmd.replace("@SHARED_DIR@", KERNEL_DIR)
-    #     qemu_cmd.append(cmd)
+    if args.volumes:
+        volume_host = args.volumes[0].split(":", 1)[0]
+        for cmd in QEMU_SHARED_DIR:
+            cmd = cmd.replace("@SHARED_DIR@", volume_host)
+            qemu_cmd.append(cmd)
 
     qemu_cmd.extend(qemu_extra_cmd)
 

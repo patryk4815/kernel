@@ -78,10 +78,14 @@ let
 
     mkdir -p /new_root
     mount -t tmpfs tmpfs /new_root
-    mkdir -p /new_root/lower /new_root/upper /new_root/work /new_root/merged
+    mkdir -p /new_root/lower /new_root/upper/upper /new_root/upper/work /new_root/merged
     mount -t erofs /dev/vda /new_root/lower
+    if [ -e /dev/vdb ]; then
+        mount -t ext4 /dev/vdb /new_root/upper
+        mkdir -p /new_root/upper/upper /new_root/upper/work
+    fi
 
-    mount -t overlay overlay -o lowerdir=/new_root/lower,upperdir=/new_root/upper,workdir=/new_root/work /new_root/merged
+    mount -t overlay overlay -o lowerdir=/new_root/lower,upperdir=/new_root/upper/upper,workdir=/new_root/upper/work /new_root/merged
     mkdir -p /new_root/merged/proc /new_root/merged/dev /new_root/merged/sys /new_root/merged/run /new_root/merged/tmp /new_root/merged/mnt
     mount --move /proc /new_root/merged/proc
     mount --move /dev /new_root/merged/dev
