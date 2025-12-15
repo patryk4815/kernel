@@ -125,6 +125,7 @@ with open(dst_erofs_file_tmp, "ab") as f:
                 if not chunk:
                     break
                 f.write(chunk)
+        os.remove(layer)
 
 shutil.move(config_path, dst_config)
 shutil.rmtree(dst_layers_dir)
