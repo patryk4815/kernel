@@ -244,20 +244,19 @@
           nativeBuildInputs = [
             pkgs.makeWrapper
           ];
+          buildInputs = [
+            pkgs.python3
+          ];
         } ''
           mkdir -p $out/bin/
-          cp ${./download_docker.sh} $out/bin/download_docker.sh
-          patchShebangs $out/bin/download_docker.sh
-          wrapProgram $out/bin/download_docker.sh \
+          cp ${./download_docker.py} $out/bin/download_docker
+          patchShebangs $out/bin/download_docker
+          wrapProgram $out/bin/download_docker \
             --set PATH ${
               pkgs.lib.makeBinPath [
-                pkgs.coreutils
-                pkgs.findutils
-                pkgs.gnugrep
-                pkgs.gnused
                 pkgs.skopeo
-                pkgs.squashfs-tools-ng
                 pkgs.undocker
+                pkgs.erofs-utils
               ]
             }
         '';
@@ -364,7 +363,7 @@
           fi
 
           if [ -n "$DOCKER_IMAGE" ]; then
-            QEMU_SQUASHFS=$(${download_docker}/bin/download_docker.sh $DOCKER_PLATFORM $DOCKER_IMAGE)
+            QEMU_SQUASHFS=$(${download_docker}/bin/download_docker $DOCKER_PLATFORM $DOCKER_IMAGE)
             EXIT_CODE=$?
             if [ $EXIT_CODE -ne 0 ]; then
                 echo "Error downloading Docker image: exit code $EXIT_CODE"

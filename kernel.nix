@@ -90,6 +90,8 @@ stdenv.mkDerivation (finalAttrs: {
       # Virtio
       scripts/config --enable CONFIG_FS_POSIX_ACL
       scripts/config --enable CONFIG_FUSE_FS
+      scripts/config --enable CONFIG_BLOCK
+      scripts/config --enable CONFIG_EROFS_FS
       scripts/config --enable CONFIG_VIRTIO_FS
       scripts/config --enable CONFIG_VIRTIO_VSOCKETS
       scripts/config --enable CONFIG_VIRTIO_BLK
@@ -98,6 +100,7 @@ stdenv.mkDerivation (finalAttrs: {
       scripts/config --enable CONFIG_VIRTIO_MEM
       scripts/config --enable CONFIG_VIRTIO_MMIO
       scripts/config --enable CONFIG_VIRTIO_IOMMU
+      scripts/config --enable CONFIG_VIRTIO_CONSOLE
       scripts/config --enable CONFIG_VSOCKETS
       scripts/config --enable CONFIG_VHOST_NET
       scripts/config --enable CONFIG_NET_9P
