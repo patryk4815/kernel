@@ -51,6 +51,7 @@ Options:
 * misp64el - vicamo/debian:bookworm (debian 12) / debian:bookworm
 * mips - openwrt/rootfs:malta-be (linux/mips_24kc)
 * ppc64 - adelielinux/adelie:latest
+* loongarch64 - ghcr.io/loong64/debian:trixie
 
 TODO:
 - console=hvc0 + CONFIG_VIRTIO_CONSOLE=y  (virtio_console)
