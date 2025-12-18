@@ -24,8 +24,8 @@ DEFAULT_GDB_PORT = "1234"
 
 
 def run_command(cmd):
-    proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    return proc.returncode, proc.stdout.strip(), proc.stderr.strip()
+    proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=sys.stderr, text=True)
+    return proc.returncode, proc.stdout.strip()
 
 def get_cache_dir():
     xdg_cache = os.environ.get("XDG_CACHE_HOME")
@@ -169,11 +169,9 @@ def main():
             args.platform,
             args.docker_image,
         ]
-        rc, stdout, stderr = run_command(cmd)
+        rc, stdout = run_command(cmd)
         if rc != 0:
             print(f"Error downloading Docker image: exit code {rc}", file=sys.stderr)
-            if stderr:
-                print(stderr, file=sys.stderr)
             sys.exit(rc)
 
         if stdout:
@@ -213,11 +211,9 @@ def main():
             "-E", "lazy_itable_init=0,lazy_journal_init=0",
             runtime_img_path,
         ]
-        rc, _, err = run_command(mkfs_cmd)
+        rc, _ = run_command(mkfs_cmd)
         if rc != 0:
             print("mkfs.ext4 failed", file=sys.stderr)
-            if err:
-                print(err, file=sys.stderr)
             sys.exit(rc)
 
         qemu_extra_cmd.extend([
