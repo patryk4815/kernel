@@ -2,7 +2,6 @@
 import hashlib
 import json
 import os
-import pathlib
 import shutil
 import subprocess
 import sys
@@ -10,6 +9,19 @@ import sys
 
 def log(msg):
     print(msg, file=sys.stderr)
+
+
+def image_exists(image_str: str) -> bool:
+    try:
+        subprocess.run(
+            ["skopeo", "inspect", f"docker-daemon:{image_str}"],
+            check=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        return True
+    except subprocess.CalledProcessError:
+        return False
 
 
 if len(sys.argv) < 2:
@@ -57,6 +69,7 @@ if os.path.exists(dst_erofs_file):
     sys.exit(0)
 
 log("[INFO] Downloading image...")
+is_local_image = image_exists(image)
 subprocess.run(
     [
         "skopeo",
@@ -65,11 +78,11 @@ subprocess.run(
         "--override-os", os_name,
         "--override-arch", arch,
         "--dest-decompress",
-        f"docker://{image}",
+        f"docker-daemon:{image}" if is_local_image else f"docker://{image}",
         f"dir:{dst_layers_dir}",
     ],
     check=True,
-    stdout=2,
+    stdout=sys.stderr,
     # stdout=subprocess.DEVNULL,
 )
 
@@ -96,7 +109,7 @@ for layer in manifest.get("layers", []):
             layer_path_tar
         ],
         check=True,
-        stdout=2,
+        stdout=sys.stderr,
         # stdout=subprocess.DEVNULL,
     )
     layers.append(layer_path_erofs)
