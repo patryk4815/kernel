@@ -65,6 +65,11 @@ def main():
         help="Enable GDB debugging (QEMU gdbstub with -gdb and -S)"
     )
     parser.add_argument(
+        "--refresh",
+        action="store_true",
+        help="Redownload docker image"
+    )
+    parser.add_argument(
         "--nokaslr",
         action="store_true",
         help="Disable kernel address space layout randomization (adds 'nokaslr' to the kernel command line)"
@@ -169,6 +174,9 @@ def main():
             args.platform,
             args.docker_image,
         ]
+        if args.refresh:
+            cmd.append("--refresh")
+        
         rc, stdout = run_command(cmd)
         if rc != 0:
             print(f"Error downloading Docker image: exit code {rc}", file=sys.stderr)
