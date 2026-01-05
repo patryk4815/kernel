@@ -238,7 +238,7 @@ def main():
     # -device vhost-vsock-pci,guest-cid=3
 
     for cmd in QEMU_NETWORK:
-        cmd = cmd.replace("@PORT_FORWARD@", ",".join(port_forward_opts))
+        cmd = cmd.replace("@PORT_FORWARD@", ","+(",".join(port_forward_opts)))
         qemu_cmd.append(cmd)
 
     for cmd in QEMU_ARGS:
