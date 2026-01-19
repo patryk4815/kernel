@@ -16,20 +16,24 @@ Options:
 ```
 
 # Matrix
-| Attr/Architecture    | Endianess | Network/NAT | SharedDir |
-|----------------------|-----------|-------------|------------|
-| vm-i686-linux        | Little    | ✅          | ✅         |
-| vm-x86_64-linux      | Little    | ✅          | ✅         |
-| vm-armv7l-linux      | Little    | ✅          | ✅         |
-| vm-aarch64-linux     | Little    | ✅          | ✅         |
-| vm-riscv64-linux     | Little    | ✅          | ✅         |
-| vm-s390x-linux       | Big       | ✅          | ✅         |
-| vm-ppc64-linux       | Big       | ✅          | ✅         |
-| vm-ppc64le-linux     | Little    | ✅          | ✅         |
-| vm-loongarch64-linux | Little    | ✅          | ✅         |
-| vm-mips-linux        | Big       | ✅          | ✅         |
-| vm-mipsel-linux      | Little    | ✅          | ✅         |
-| vm-mips64el-linux    | Little    | ✅          | ✅         |
+| Attr/Architecture  | Endianess                | Network/NAT        | SharedDir          |
+|--------------------|--------------------------|--------------------|--------------------|
+| vm-i686-linux      | Little                   | ✅                  | ✅                  |
+| vm-x86_64-linux    | Little                   | ✅                  | ✅                  |
+| vm-x86_64_baseline-linux   | Little                   | ✅                  | ✅                  |
+| vm-x86_64_v2-linux | Little                   | ✅                  | ✅                  |
+| vm-x86_64_v3-linux | Little                   | ✅                  | ✅                  |
+| vm-x86_64_v4-linux | ❌ not supported ❌ - see https://gitlab.com/qemu-project/qemu/-/issues/2878 |
+| vm-armv7l-linux    | Little                   | ✅                  | ✅                  |
+| vm-aarch64-linux   | Little                   | ✅                  | ✅                  |
+| vm-riscv64-linux   | Little                   | ✅                  | ✅                  |
+| vm-s390x-linux     | Big                      | ✅                  | ✅                  |
+| vm-ppc64-linux     | Big                      | ✅                  | ✅                  |
+| vm-ppc64le-linux   | Little                   | ✅                  | ✅                  |
+| vm-loongarch64-linux | Little                   | ✅                  | ✅                  |
+| vm-mips-linux      | Big                      | ✅                  | ✅                  |
+| vm-mipsel-linux    | Little                   | ✅                  | ✅                  |
+| vm-mips64el-linux  | Little                   | ✅                  | ✅                  |
 
 
 ### Distros:

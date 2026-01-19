@@ -57,6 +57,79 @@
           qemuArch = "x86_64";
           qemuArgs = [
             "-machine" "pc"
+            "-cpu" "max"
+            "-kernel" "@KERNEL_DIR@/bzImage"
+          ];
+          kernelArgs = ["console=ttyS0"];
+          sharedDir = [
+            "-virtfs" "local,path=@SHARED_DIR@,security_model=none,mount_tag=shared"
+          ];
+          network = [
+            "-netdev" "user,id=eth0@PORT_FORWARD@"
+            "-device" "virtio-net-pci,netdev=eth0"
+          ];
+        };
+        "x86_64_baseline-linux" = {
+          nixCross = "gnu64";
+          dockerPlatform = "linux/amd64";
+          qemuArch = "x86_64";
+          qemuArgs = [
+            "-machine" "pc"
+            "-cpu" "qemu64-v1"
+            "-kernel" "@KERNEL_DIR@/bzImage"
+          ];
+          kernelArgs = ["console=ttyS0"];
+          sharedDir = [
+            "-virtfs" "local,path=@SHARED_DIR@,security_model=none,mount_tag=shared"
+          ];
+          network = [
+            "-netdev" "user,id=eth0@PORT_FORWARD@"
+            "-device" "virtio-net-pci,netdev=eth0"
+          ];
+        };
+        "x86_64_v2-linux" = {
+          nixCross = "gnu64";
+          dockerPlatform = "linux/amd64";
+          qemuArch = "x86_64";
+          qemuArgs = [
+            "-machine" "pc"
+            "-cpu" "Snowridge-v4"
+            "-kernel" "@KERNEL_DIR@/bzImage"
+          ];
+          kernelArgs = ["console=ttyS0"];
+          sharedDir = [
+            "-virtfs" "local,path=@SHARED_DIR@,security_model=none,mount_tag=shared"
+          ];
+          network = [
+            "-netdev" "user,id=eth0@PORT_FORWARD@"
+            "-device" "virtio-net-pci,netdev=eth0"
+          ];
+        };
+        "x86_64_v3-linux" = {
+          nixCross = "gnu64";
+          dockerPlatform = "linux/amd64";
+          qemuArch = "x86_64";
+          qemuArgs = [
+            "-machine" "pc"
+            "-cpu" "EPYC-v4"
+            "-kernel" "@KERNEL_DIR@/bzImage"
+          ];
+          kernelArgs = ["console=ttyS0"];
+          sharedDir = [
+            "-virtfs" "local,path=@SHARED_DIR@,security_model=none,mount_tag=shared"
+          ];
+          network = [
+            "-netdev" "user,id=eth0@PORT_FORWARD@"
+            "-device" "virtio-net-pci,netdev=eth0"
+          ];
+        };
+        "x86_64_v4-linux" = {
+          nixCross = "gnu64";
+          dockerPlatform = "linux/amd64";
+          qemuArch = "x86_64";
+          qemuArgs = [
+            "-machine" "pc"
+            "-cpu" "SapphireRapids-v4,+avx512"
             "-kernel" "@KERNEL_DIR@/bzImage"
           ];
           kernelArgs = ["console=ttyS0"];
