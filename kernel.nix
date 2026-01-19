@@ -15,6 +15,7 @@
   zstd,
   hexdump,
   ubootTools,
+  pkgsBuildBuild,
   kernelConfig ? null,
 }:
 stdenv.mkDerivation (finalAttrs: {
@@ -49,7 +50,7 @@ stdenv.mkDerivation (finalAttrs: {
     zstd
   ]
   ++ lib.optionals stdenv.targetPlatform.isMips [
-    ubootTools
+    pkgsBuildBuild.ubootTools
   ];
   strictDeps = true;
   dontStrip = true;
