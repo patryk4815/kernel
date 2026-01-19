@@ -52,15 +52,7 @@
             "-machine" "sun4u"
             "-kernel" "@KERNEL_DIR@/vmlinux"
           ];
-          sharedDir = [
-
-#            "-fsdev" "local,id=test_dev,path=@SHARED_DIR@,security_model=none,multidevs=remap"
-#            "-device" "virtio-9p-device,fsdev=test_dev,mount_tag=shared"
-
-#            "-fsdev" "local,id=test_dev,path=@SHARED_DIR@,security_model=none,multidevs=remap"
-#            "-device" "virtio-9p-pci,fsdev=test_dev,mount_tag=shared,bus=pcie.1"
-#            "-virtfs" "local,path=@SHARED_DIR@,security_model=none,mount_tag=shared" # TODO:
-          ];
+          sharedDir = [];  # NOT supported on sparc
           network = [
             "-net" "nic"
             "-net" "user@PORT_FORWARD@"
@@ -174,11 +166,13 @@
           ];
         };
         "armv7l-linux" = {
+          # volume mounting only is working on old qemu (virt-2.12)
+          qemuDrv = system: (builtins.getFlake "github:patryk4815/kernel/5904e252281864941b27b6e1ffa092063e82060c").inputs.nixpkgs.legacyPackages.${system}.qemu;
           nixCross = "armv7l-hf-multiplatform";
           dockerPlatform = "linux/arm";
           qemuArch = "arm";
           qemuArgs = [
-            "-machine" "virt"
+            "-machine" "virt-2.12"
             "-cpu" "cortex-a7"
             "-kernel" "@KERNEL_DIR@/zImage"
           ];
@@ -369,11 +363,14 @@
       run_qemu =
         system: cross:
         let
-          args = vms.${cross};
+          args' = vms.${cross};
+          args = builtins.removeAttrs args' [ "qemuDrv" ];
           pkgs = (nixpkgs.legacyPackages.${system}.extend overlay);
           initrd = self.packages.${system}."initrd-${cross}";
           kernel = self.packages.${system}."kernel-${cross}";
           download_docker = self.packages.${system}.download_docker;
+
+          qemu = if args' ? qemuDrv then (args'.qemuDrv system) else pkgs.qemu;
         in
         pkgs.runCommand "run" {
           nativeBuildInputs = [
@@ -389,7 +386,7 @@
           wrapProgram $out/bin/run \
             --set PATH ${
               pkgs.lib.makeBinPath [
-                pkgs.qemu
+                qemu
                 pkgs.e2fsprogs
                 download_docker
               ]
