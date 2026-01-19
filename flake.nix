@@ -73,7 +73,7 @@
           dockerPlatform = "linux/arm";
           qemuArch = "arm";
           qemuArgs = [
-            "-machine" "virt-2.9"
+            "-machine" "virt"
             "-cpu" "cortex-a7"
             "-kernel" "@KERNEL_DIR@/zImage"
           ];
