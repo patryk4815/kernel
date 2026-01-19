@@ -271,7 +271,8 @@ def main():
     if args.volumes:
         if IS_SPARC:
             print("Volume sharing is not supported on SPARC.", file=sys.stderr)
-            exit(1)
+            print("As a workaround, you can use sshfs or NFS over the network.", file=sys.stderr)
+            sys.exit(1)
 
         volume_host = args.volumes[0].split(":", 1)[0]
         for cmd in QEMU_SHARED_DIR:
