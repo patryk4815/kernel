@@ -12,6 +12,7 @@ jobs:
           ubuntu-24.04-arm,  # aarch64-linux
         ]
         attribute: [
+          sparc64-linux,
           i686-linux,
           x86_64-linux,
           armv7l-linux,

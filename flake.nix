@@ -23,6 +23,16 @@
     let
       forAllSystems = nixpkgs.lib.genAttrs nixpkgs.lib.systems.flakeExposed;
 
+      overlay = final: prev: {
+        pkgsCross = prev.pkgsCross // {
+          sparc64-linux = import nixpkgs {
+            system = prev.stdenv.buildPlatform.system;
+            crossSystem.config = "sparc64-unknown-linux-gnu";
+            config.allowUnsupportedSystem = true;
+          };
+        };
+      };
+
       forceSystemLinux = (
         system':
         let
@@ -34,6 +44,28 @@
       );
 
       vms = {
+        "sparc64-linux" = {
+          nixCross = "sparc64-linux";
+          dockerPlatform = "linux/sparc64";
+          qemuArch = "sparc64";
+          qemuArgs = [
+            "-machine" "sun4u"
+            "-kernel" "@KERNEL_DIR@/vmlinux"
+          ];
+          sharedDir = [
+
+#            "-fsdev" "local,id=test_dev,path=@SHARED_DIR@,security_model=none,multidevs=remap"
+#            "-device" "virtio-9p-device,fsdev=test_dev,mount_tag=shared"
+
+#            "-fsdev" "local,id=test_dev,path=@SHARED_DIR@,security_model=none,multidevs=remap"
+#            "-device" "virtio-9p-pci,fsdev=test_dev,mount_tag=shared,bus=pcie.1"
+#            "-virtfs" "local,path=@SHARED_DIR@,security_model=none,mount_tag=shared" # TODO:
+          ];
+          network = [
+            "-net" "nic"
+            "-net" "user@PORT_FORWARD@"
+          ];
+        };
         "i686-linux" = {
           nixCross = "gnu32";
           dockerPlatform = "linux/386";
@@ -151,7 +183,7 @@
             "-kernel" "@KERNEL_DIR@/zImage"
           ];
           sharedDir = [
-            "-fsdev" "local,id=test_dev,path=/tmp/shared,security_model=none,multidevs=remap"
+            "-fsdev" "local,id=test_dev,path=@SHARED_DIR@,security_model=none,multidevs=remap"
             "-device" "virtio-9p-device,fsdev=test_dev,mount_tag=shared"
           ];
           network = [
@@ -338,7 +370,7 @@
         system: cross:
         let
           args = vms.${cross};
-          pkgs = nixpkgs.legacyPackages.${system};
+          pkgs = (nixpkgs.legacyPackages.${system}.extend overlay);
           initrd = self.packages.${system}."initrd-${cross}";
           kernel = self.packages.${system}."kernel-${cross}";
           download_docker = self.packages.${system}.download_docker;
@@ -371,11 +403,12 @@
         system':
         let
           system = forceSystemLinux system';
+          pkgs = (nixpkgs.legacyPackages.${system}.extend overlay);
         in
         (nixpkgs.lib.attrsets.mapAttrs' (archName: value: {
           name = "kernel-${archName}";
           value =
-            nixpkgs.legacyPackages.${system}.pkgsCross.${vms.${archName}.nixCross}.callPackage ./kernel.nix
+            pkgs.pkgsCross.${vms.${archName}.nixCross}.callPackage ./kernel.nix
               {
                 kernelConfig = vms.${archName}.kernelConfig or null;
               };
@@ -385,11 +418,12 @@
         system':
         let
           system = forceSystemLinux system';
+          pkgs = (nixpkgs.legacyPackages.${system}.extend overlay);
         in
         (nixpkgs.lib.attrsets.mapAttrs' (cross: value: {
           name = "initrd-${cross}";
           value =
-            nixpkgs.legacyPackages.${system}.pkgsCross.${vms.${cross}.nixCross}.callPackage ./initrd.nix
+            pkgs.pkgsCross.${vms.${cross}.nixCross}.callPackage ./initrd.nix
               { };
         }) vms);
 

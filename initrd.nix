@@ -1,5 +1,6 @@
 {
   lib,
+  stdenv,
   writeScript,
   makeInitrd,
   cacert,
@@ -18,6 +19,9 @@ let
       "/sbin"
     ];
   };
+
+  defaultReadonlyPartition = if stdenv.hostPlatform.isSparc then "/dev/sda" else "/dev/vda";
+  defaultStoragePartition = if stdenv.hostPlatform.isSparc then "/dev/sdb" else "/dev/vdb";
 
   init = writeScript "init" ''
     #! /bin/ash -e
@@ -64,10 +68,14 @@ let
     ifconfig lo up
     udhcpc
 
-    if [ -e /dev/vda ]; then
+    if [ -e ${defaultReadonlyPartition} ]; then
         exec setsid cttyhack /init2
     else
-        exec setsid cttyhack /bin/sh
+        if [ -e /bin/bash ]; then
+            exec setsid cttyhack /bin/bash
+        else
+            exec setsid cttyhack /bin/sh
+        fi
     fi
   '';
 
@@ -79,9 +87,9 @@ let
     mkdir -p /new_root
     mount -t tmpfs tmpfs /new_root
     mkdir -p /new_root/lower /new_root/upper/upper /new_root/upper/work /new_root/merged
-    mount -t erofs /dev/vda /new_root/lower
-    if [ -e /dev/vdb ]; then
-        mount -t ext4 /dev/vdb /new_root/upper
+    mount -t erofs ${defaultReadonlyPartition} /new_root/lower
+    if [ -e ${defaultStoragePartition} ]; then
+        mount -t ext4 ${defaultStoragePartition} /new_root/upper
         mkdir -p /new_root/upper/upper /new_root/upper/work
     fi
 
@@ -97,7 +105,11 @@ let
     rm -f /new_root/merged/etc/resolv.conf
     cp -f /etc/resolv.conf /new_root/merged/etc/resolv.conf
 
-    exec switch_root /new_root/merged /bin/sh
+    if [ -e /new_root/merged/bin/bash ]; then
+        exec switch_root /new_root/merged /bin/bash
+    else
+        exec switch_root /new_root/merged /bin/sh
+    fi
   '';
 
   initrd = makeInitrd {

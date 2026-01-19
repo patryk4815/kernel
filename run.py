@@ -13,6 +13,7 @@ KERNEL_DIR = os.getenv('KERNEL_DIR')
 INITRD_DIR = os.getenv('INITRD_DIR')
 RUN_ARGS = json.loads(os.getenv('RUN_ARGS'))
 
+IS_SPARC = RUN_ARGS.get("qemuArch") == "sparc64"
 QEMU_BINARY = f"qemu-system-{RUN_ARGS.get("qemuArch")}"
 QEMU_ARGS = RUN_ARGS.get("qemuArgs")
 QEMU_NETWORK = RUN_ARGS.get("network")
@@ -183,10 +184,17 @@ def main():
             sys.exit(rc)
 
         if stdout:
-            qemu_extra_cmd.extend([
-                "-drive",
-                f"file={stdout},file.locking=off,format=raw,if=virtio,readonly=on"
-            ])
+            if IS_SPARC:
+                # Sparc is too old, for new virtio
+                qemu_extra_cmd.extend([
+                    "-drive",
+                    f"if=ide,file={stdout},readonly=off,format=raw"
+                ])
+            else:
+                qemu_extra_cmd.extend([
+                    "-drive",
+                    f"file={stdout},file.locking=off,format=raw,if=virtio,readonly=on"
+                ])
 
     if args.runtime == "ephemeral":
         runtime_size_bytes = parse_size(args.runtime_size)
@@ -224,10 +232,17 @@ def main():
             print("mkfs.ext4 failed", file=sys.stderr)
             sys.exit(rc)
 
-        qemu_extra_cmd.extend([
-            "-drive",
-            f"file={runtime_img_path},if=virtio,format=raw"
-        ])
+        if IS_SPARC:
+            # Sparc is too old, for new virtio
+            qemu_extra_cmd.extend([
+                "-drive",
+                f"file={runtime_img_path},if=ide,format=raw"
+            ])
+        else:
+            qemu_extra_cmd.extend([
+                "-drive",
+                f"file={runtime_img_path},if=virtio,format=raw"
+            ])
     elif args.runtime == "tmpfs":
         pass
 
@@ -254,6 +269,10 @@ def main():
         qemu_cmd.append(cmd)
 
     if args.volumes:
+        if IS_SPARC:
+            print("Volume sharing is not supported on SPARC.", file=sys.stderr)
+            exit(1)
+
         volume_host = args.volumes[0].split(":", 1)[0]
         for cmd in QEMU_SHARED_DIR:
             cmd = cmd.replace("@SHARED_DIR@", volume_host)

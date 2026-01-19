@@ -115,7 +115,7 @@ stdenv.mkDerivation (finalAttrs: {
 
       sed -i 's/=m$/=n/' .config
     ''
-    + lib.optionalString stdenv.hostPlatform.isMips ''
+    + lib.optionalString (stdenv.hostPlatform.isMips || stdenv.hostPlatform.isSparc) ''
       scripts/config --enable CONFIG_USER_NS
       scripts/config --enable CONFIG_CGROUPS
     ''
