@@ -196,7 +196,7 @@ def main():
                     f"file={stdout},file.locking=off,format=raw,if=virtio,readonly=on"
                 ])
 
-    if args.runtime == "ephemeral":
+    if args.runtime == "ephemeral" and args.docker_image:
         runtime_size_bytes = parse_size(args.runtime_size)
         runtime_path = os.path.join(cache_dir, "tmp")
         try:
