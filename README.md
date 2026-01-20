@@ -38,18 +38,19 @@ Options:
 
 
 ### Distros:
-* mispel - Debian 12 "bookworm" last release
-* misp64el - debian
-* mips - openwrt, debian ostatni release 9 stretch
-* ppc64 - adelie linux, chimera Linux
 * ppc64le - most of distros
 * s390x - most of distros
-* i686 - most of distros
 * x86_64 - most of distros
-* armv7l - ?? most of distros
 * aarch64 - most of distros
 * riscv64 - most of distros
 * loongarch64 - most of distros
+* armv7l - (dying) most of distros
+* i686 - (dying) most of distros
+* misp64el - (dying), only debian
+* mispel - DEAD, Debian 12 "bookworm" last release
+* mips - DEAD, openwrt, debian last release 9 stretch
+* ppc64 - DEAD, adelie linux, chimera Linux
+* sparc64 - DEAD*, debian
 
 ### Docker images:
 * mipsel - vicamo/debian:bookworm (debian 12)
