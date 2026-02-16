@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import atexit
 import hashlib
 import json
 import os
@@ -11,10 +12,16 @@ def log(msg):
     print(msg, file=sys.stderr)
 
 
-def image_exists(image_str: str) -> bool:
+def image_exists(image_str: str, os_name: str, arch: str) -> bool:
     try:
         subprocess.run(
-            ["skopeo", "inspect", f"docker-daemon:{image_str}"],
+            [
+                "skopeo",
+                "inspect",
+                f"docker-daemon:{image_str}",
+                "--override-os", os_name,
+                "--override-arch", arch,
+            ],
             check=True,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
@@ -59,6 +66,13 @@ if refresh and os.path.exists(cache_dir):
 
 os.makedirs(cache_dir, exist_ok=True)
 
+# Cleanup cache_dir on failure
+cleanup_needed = True
+def cleanup_on_exit():
+    if cleanup_needed and os.path.exists(cache_dir):
+        shutil.rmtree(cache_dir)
+atexit.register(cleanup_on_exit)
+
 dst_layers_dir = os.path.join(cache_dir, "image.tar")
 dst_erofs_file = os.path.join(cache_dir, "image.erofs")
 dst_erofs_file_tmp = dst_erofs_file + ".tmp"
@@ -69,7 +83,7 @@ if os.path.exists(dst_erofs_file):
     sys.exit(0)
 
 log("[INFO] Downloading image...")
-is_local_image = image_exists(image)
+is_local_image = image_exists(image, os_name, arch)
 subprocess.run(
     [
         "skopeo",
@@ -91,6 +105,21 @@ with open(manifest_path, "r", encoding="utf-8") as f:
     manifest = json.load(f)
 
 config_path = os.path.join(dst_layers_dir, manifest.get("config", {}).get("digest").split(":", maxsplit=1)[1])
+
+# Verify we downloaded the correct platform
+with open(config_path, "r", encoding="utf-8") as f:
+    config = json.load(f)
+    downloaded_os = config.get("os", "")
+    downloaded_arch = config.get("architecture", "")
+
+    if is_local_image:
+        log(f"[INFO] Downloaded LOCAL image: {downloaded_os}/{downloaded_arch}")
+    else:
+        log(f"[INFO] Downloaded REMOTE image: {downloaded_os}/{downloaded_arch}")
+
+    if downloaded_os != os_name or downloaded_arch != arch:
+        log(f"[ERROR] Platform mismatch! Expected {os_name}/{arch}, got {downloaded_os}/{downloaded_arch}")
+        sys.exit(1)
 
 layers = []
 for layer in manifest.get("layers", []):
@@ -144,5 +173,6 @@ shutil.move(config_path, dst_config)
 shutil.rmtree(dst_layers_dir)
 shutil.move(dst_erofs_file_tmp, dst_erofs_file)
 
+cleanup_needed = False
 log(f"[INFO] Final squashfs file: {dst_erofs_file}")
 print(dst_erofs_file)
