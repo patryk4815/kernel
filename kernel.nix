@@ -20,11 +20,11 @@
 }:
 stdenv.mkDerivation (finalAttrs: {
   name = "linux";
-  version = "6.18.6";
+  version = "6.19.2";
 
   src = fetchurl {
     url = "https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-${finalAttrs.version}.tar.xz";
-    hash = "sha256-RySXGXsvaNTb8bwyzG3GacoiD/TA6w3Dmpz/moj5oxs=";
+    hash = "sha256-iGEZgVgszrfN1NaI2diBBzz0l3F2JSGTojym1LmC7lo=";
   };
 
   # BUG: "MIPS: mm: tlb-r4k: Uniquify TLB entries on init" since 6.16.1
@@ -61,6 +61,8 @@ stdenv.mkDerivation (finalAttrs: {
   env = {
     ARCH = "${stdenv.hostPlatform.linuxArch}";
     CROSS_COMPILE = "${stdenv.cc.targetPrefix}";
+    # TODO: vdso armv7l on aarch64? (VDSO COMPAT)
+#     NIX_CFLAGS_COMPILE =" -fno-omit-frame-pointer -O2";
   };
 
   preBuild =
