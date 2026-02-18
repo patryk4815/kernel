@@ -79,6 +79,7 @@ dst_erofs_file_tmp = dst_erofs_file + ".tmp"
 dst_config = os.path.join(cache_dir, "config.json")
 
 if os.path.exists(dst_erofs_file):
+    cleanup_needed = False
     print(dst_erofs_file)
     sys.exit(0)
 
