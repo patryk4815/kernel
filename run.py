@@ -10,6 +10,7 @@ import sys
 import tempfile
 
 KERNEL_DIR = os.getenv('KERNEL_DIR')
+KERNEL_SOURCE_DIR = os.getenv('KERNEL_SOURCE_DIR')
 INITRD_DIR = os.getenv('INITRD_DIR')
 RUN_ARGS = json.loads(os.getenv('RUN_ARGS'))
 
@@ -154,6 +155,9 @@ def main():
         print(f"gdbserver is listening on port :{args.gdb_port}")
         print("Please use the following VMLINUX file:")
         print(f"{KERNEL_DIR}/vmlinux.debug\n")
+
+        print("Please use the following SOURCE directory:")
+        print(f"set substitute-path /build {KERNEL_SOURCE_DIR}\n")
 
         if not args.nokaslr:
             print("KASLR is enabled. To disable it, use the --nokaslr option.")

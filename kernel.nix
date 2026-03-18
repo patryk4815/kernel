@@ -62,7 +62,7 @@ stdenv.mkDerivation (finalAttrs: {
     ARCH = "${stdenv.hostPlatform.linuxArch}";
     CROSS_COMPILE = "${stdenv.cc.targetPrefix}";
     # TODO: vdso armv7l on aarch64? (VDSO COMPAT)
-#     NIX_CFLAGS_COMPILE =" -fno-omit-frame-pointer -O2";
+    #     NIX_CFLAGS_COMPILE =" -fno-omit-frame-pointer -O2";
   };
 
   preBuild =
@@ -159,4 +159,18 @@ stdenv.mkDerivation (finalAttrs: {
 
     ${stdenv.cc.targetPrefix}strip --strip-debug $out/vmlinux
   '';
+
+  passthru = {
+    source_unpacked = finalAttrs.overrideAttrs (o: {
+      phases = [
+        "unpackPhase"
+        "patchPhase"
+        "installPhase"
+      ];
+      installPhase = ''
+        mkdir -p $out
+        cp -r $(pwd) $out
+      '';
+    });
+  };
 })

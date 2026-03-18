@@ -392,6 +392,7 @@
               ]
             } \
             --set KERNEL_DIR "${kernel}" \
+            --set KERNEL_SOURCE_DIR "${kernel.source_unpacked}" \
             --set INITRD_DIR "${initrd}" \
             --set RUN_ARGS '${builtins.toJSON args}'
         '';
