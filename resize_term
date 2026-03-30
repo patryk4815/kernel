@@ -1,0 +1,31 @@
+#!/bin/sh
+
+resize_term() {
+  local old=$(stty -g)
+
+  stty raw -echo min 0 time 5
+
+  printf '\033[18t'
+
+  local response=""
+  while IFS= read -r -n1 char; do
+    response+="$char"
+    [[ "$char" == "t" ]] && break
+  done
+
+  stty "$old"
+
+  tmp="${response#*;}"
+  rows="${tmp%%;*}"
+  cols="${tmp#*;}"
+  cols="${cols%t*}"
+  if [ -n "$rows" ] && [ -n "$cols" ] && [ "$rows" -gt 0 ] && [ "$cols" -gt 0 ]; then
+    stty rows "$rows" cols "$cols"
+    echo "Terminal resized to ${rows}x${cols}"
+  else
+    echo "Failed to detect terminal size" >&2
+    exit 1
+  fi
+}
+
+resize_term

@@ -45,6 +45,7 @@ let
 
     mkdir -p /dev/pts /dev/shm /tmp /run /var
     mount -t cgroup2 none /sys/fs/cgroup
+    mount -t bpf bpf /sys/fs/bpf
     mount -t devpts none /dev/pts
     mount -t tmpfs -o "mode=1777" none /dev/shm
     mount -t tmpfs -o "mode=1777" none /var
@@ -104,6 +105,7 @@ let
 
     rm -f /new_root/merged/etc/resolv.conf
     cp -f /etc/resolv.conf /new_root/merged/etc/resolv.conf
+    cp ${./resize_term} /new_root/merged/bin/resize_term
 
     if [ -e /new_root/merged/bin/bash ]; then
         exec switch_root /new_root/merged /bin/bash

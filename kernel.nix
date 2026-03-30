@@ -16,6 +16,8 @@
   hexdump,
   ubootTools,
   pkgsBuildBuild,
+  pahole,
+  zlib,
   kernelConfig ? null,
 }:
 stdenv.mkDerivation (finalAttrs: {
@@ -44,6 +46,9 @@ stdenv.mkDerivation (finalAttrs: {
     python3Minimal
     elfutils
     openssl
+
+    pahole # needed for EBPF CONFIG_DEBUG_INFO_BTF
+    zlib # needed for EBPF (libbpf.so)
   ]
   ++ lib.optionals stdenv.targetPlatform.isLoongArch64 [
     hexdump
@@ -77,7 +82,7 @@ stdenv.mkDerivation (finalAttrs: {
     in
     ''
       make ${defconfig}
-      patchShebangs scripts/config
+      patchShebangs scripts/
 
       # Enable debug symbols
       scripts/config --disable CONFIG_DEBUG_INFO_REDUCED
@@ -86,6 +91,19 @@ stdenv.mkDerivation (finalAttrs: {
       scripts/config --enable CONFIG_DEBUG_INFO
       scripts/config --enable CONFIG_DEBUG_INFO_DWARF5
       scripts/config --enable CONFIG_GDB_SCRIPTS
+
+      # ebpf
+      scripts/config --enable CONFIG_BPF
+      scripts/config --enable CONFIG_DEBUG_INFO_BTF
+      scripts/config --enable CONFIG_BPF_SYSCALL
+      scripts/config --enable CONFIG_BPF_JIT
+      scripts/config --enable CONFIG_BPF_EVENTS
+      scripts/config --enable CONFIG_BPF_LSM
+      scripts/config --enable CONFIG_NETFILTER_BPF_LINK
+      scripts/config --enable CONFIG_NET_SCH_BPF
+      scripts/config --enable CONFIG_NET_CLS_BPF
+      scripts/config --enable CONFIG_NET_ACT_BPF
+      scripts/config --enable CONFIG_CGROUP_BPF
 
       # debug
       scripts/config --enable CONFIG_DEBUG_FS
