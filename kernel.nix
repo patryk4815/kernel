@@ -22,18 +22,12 @@
 }:
 stdenv.mkDerivation (finalAttrs: {
   name = "linux";
-  version = "6.19.2";
+  version = "7.0";
 
   src = fetchurl {
-    url = "https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-${finalAttrs.version}.tar.xz";
-    hash = "sha256-iGEZgVgszrfN1NaI2diBBzz0l3F2JSGTojym1LmC7lo=";
+    url = "https://cdn.kernel.org/pub/linux/kernel/v7.x/linux-${finalAttrs.version}.tar.xz";
+    hash = "sha256-u39tgLOHx1e30Uu5MCj8uQ95PFwNNnc27oFaEAs4kfA=";
   };
-
-  # BUG: "MIPS: mm: tlb-r4k: Uniquify TLB entries on init" since 6.16.1
-  postPatch = lib.optionalString stdenv.hostPlatform.isMips64 ''
-    substituteInPlace arch/mips/mm/tlb-r4k.c \
-      --replace-fail "r4k_tlb_uniquify();" "local_flush_tlb_all();"
-  '';
 
   buildInputs = [ ];
 
