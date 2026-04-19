@@ -81,7 +81,7 @@
           qemuArch = "x86_64";
           qemuArgs = [
             "-machine" "pc"
-            "-cpu" "max"
+            "-cpu" "max,vendor=GenuineIntel,family=6,model=60,stepping=3"
             "-kernel" "@KERNEL_DIR@/bzImage"
           ];
           kernelArgs = ["console=ttyS0"];
