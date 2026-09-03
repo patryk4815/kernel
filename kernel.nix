@@ -133,6 +133,7 @@ stdenv.mkDerivation (finalAttrs: {
       scripts/config --enable CONFIG_OVERLAY_FS
       scripts/config --enable CONFIG_SQUASHFS
       scripts/config --enable CONFIG_SQUASHFS_ZLIB
+      scripts/config --enable CONFIG_TMPFS_XATTR
 
       sed -i 's/=m$/=n/' .config
     ''
